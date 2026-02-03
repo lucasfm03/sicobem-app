@@ -6,6 +6,8 @@ export default function Input(props: any) {
       style={styles.input}
       placeholder={props.placeholder}
       secureTextEntry={props.secure}
+      value={props.value}
+      onChangeText={props.onChangeText}
     />
   );
 }
@@ -13,12 +15,12 @@ export default function Input(props: any) {
 const styles = StyleSheet.create({
   input: {
     width: "100%",
-    height: 42,
+    height: 45,
     backgroundColor: "#FFF",
     borderWidth: 1,
     borderColor: "#000",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
   },
 });

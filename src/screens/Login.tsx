@@ -8,10 +8,27 @@ import {
 } from "react-native";
 import Input from "../components/Input";
 import { router } from "expo-router";
+import Popup from "../components/Popup";
+import { useState } from "react";
 
 export default function Login() {
+  const [cpf, setCpf] = useState("");
+  const [senha, setSenha] = useState("");
+  const [showError, setShowError] = useState(false);
+
+  function handleLogin() {
+    if (!cpf || !senha) {
+      setShowError(true);
+      return;
+    }
+
+    router.replace("/(tabs)/home");
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+
+      {/* LOGO */}
       <View style={styles.logoContainer}>
         <Image
           source={require("../../assets/images/logo.png")}
@@ -19,31 +36,52 @@ export default function Login() {
         />
       </View>
 
+      {/* TÍTULOS */}
       <Text style={styles.welcome}>Bem vindo!</Text>
       <Text style={styles.loginTitle}>LOGIN</Text>
 
+      {/* FORM */}
       <View style={styles.form}>
-        <Input placeholder="CPF" />
-        <Input placeholder="Senha" secure />
 
+        <Input
+          placeholder="CPF"
+          value={cpf}
+          onChangeText={setCpf}
+        />
+
+        <Input
+          placeholder="Senha"
+          secure
+          value={senha}
+          onChangeText={setSenha}
+        />
+
+        {/* BOTÃO ENTRAR */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/home")}
+          onPress={handleLogin}
         >
           <Text style={styles.buttonText}>ENTRAR</Text>
         </TouchableOpacity>
 
         <Text style={styles.or}>ou</Text>
 
-        <TouchableOpacity style={styles.buttonSecondary}>
+        {/* BOTÃO CADASTRAR */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("/register")}
+        >
           <Text style={styles.buttonText}>CADASTRAR</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity>
+        {/* ESQUECI SENHA */}
+        <TouchableOpacity onPress={() => router.push("/forgot-password")}>
           <Text style={styles.forgot}>Esqueci minha senha</Text>
         </TouchableOpacity>
+
       </View>
 
+      {/* RODAPÉ */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           © 2026 App Sicobem. Todos os direitos reservados.
@@ -52,6 +90,16 @@ export default function Login() {
           Desenvolvido pela equipe WLL
         </Text>
       </View>
+
+      {/* POPUP DE ERRO */}
+      <Popup
+        visible={showError}
+        title="CREDENCIAIS INVÁLIDAS"
+        buttonText="VOLTAR"
+        color="red"
+        onClose={() => setShowError(false)}
+      />
+
     </ScrollView>
   );
 }
@@ -70,8 +118,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 350,
-    height: 280,
+    width: 380,
+    height: 220,
     resizeMode: "contain",
   },
 
@@ -95,16 +143,6 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    width: "100%",
-    height: 42,
-    backgroundColor: "#1E90FF",
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-  },
-
-  buttonSecondary: {
     width: "100%",
     height: 42,
     backgroundColor: "#1E90FF",
