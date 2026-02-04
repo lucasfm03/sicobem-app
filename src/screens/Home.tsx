@@ -8,26 +8,42 @@ import {
   Image,
   Alert,
 } from "react-native";
-
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { router } from "expo-router";
 import { api } from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
 
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [setores, setSetores] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const setores = [
-    "Setor 01",
-    "Setor 02",
-    "Setor 03",
-    "Setor 04",
-    "Setor 05",
-    "Setor 06",
-    "Inservíveis",
-  ];
+  async function carregarSetores() {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      const response = await api.get("/setor", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setSetores(response.data);
+    } catch (err) {
+      Alert.alert(
+        "Erro",
+        err.message ||
+        err.response?.data?.erro ||
+        "Não foi possível carregar os setores"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   function handleDeleteSetor(nome: string) {
     Alert.alert(
@@ -42,6 +58,9 @@ export default function Home() {
       ]
     );
   }
+  useEffect(() => {
+    carregarSetores();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -81,50 +100,45 @@ export default function Home() {
         {/* LISTA */}
         <FlatList
           data={setores.filter(s =>
-            s.toLowerCase().includes(search.toLowerCase())
+            s.nome.toLowerCase().includes(search.toLowerCase())
           )}
-          keyExtractor={(item) => item}
+          keyExtractor={(item) => item.id_setor.toString()}
+          refreshing={loading}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.item}
-              onPress={() => router.push("/bens")}
+              onPress={() =>
+                router.push({
+                  pathname: "/bens",
+                  params: { idSetor: item.id_setor }
+                })
+              }
             >
 
-              <Text style={styles.itemText}>{item}</Text>
+              <Text style={styles.itemText}>{item.nome}</Text>
 
               <View style={styles.actions}>
 
                 {/* EDITAR */}
                 <TouchableOpacity
                   onPress={() =>
-                    router.push("/setores/renomear")
+                    router.push({
+                      pathname: "/setores/renomear",
+                      params: { idSetor: item.id_setor }
+                    })
                   }
                 >
-                  <Ionicons
-                    name="pencil"
-                    size={20}
-                    color="#1E90FF"
-                  />
+                  <Ionicons name="pencil" size={20} color="#1E90FF" />
                 </TouchableOpacity>
 
                 {/* EXCLUIR */}
                 <TouchableOpacity
-                  onPress={() => handleDeleteSetor(item)}
+                  onPress={() => handleDeleteSetor(item.nome)}
                 >
-                  <Ionicons
-                    name="trash"
-                    size={20}
-                    color="red"
-                  />
+                  <Ionicons name="trash" size={20} color="red" />
                 </TouchableOpacity>
 
-                {/* ENTRAR */}
-                <Ionicons
-                  name="chevron-forward"
-                  size={22}
-                  color="#555"
-                />
-
+                <Ionicons name="chevron-forward" size={22} color="#555" />
               </View>
 
             </TouchableOpacity>
