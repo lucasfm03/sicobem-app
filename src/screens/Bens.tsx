@@ -13,6 +13,7 @@ import { router } from "expo-router";
 import { api } from "../services/api";
 
 export default function Bens() {
+
   const [search, setSearch] = useState("");
 
   const bens = [
@@ -25,19 +26,21 @@ export default function Bens() {
   return (
     <View style={styles.container}>
 
-      {/* TOPO COM LOGO E SAIR */}
+      {/* TOPO */}
       <View style={styles.topBar}>
 
-        <TouchableOpacity onPress={() => router.replace("/login")}>
-          <Ionicons name="log-out-outline" size={26} color="#333" />
+        {/* SETA VOLTAR */}
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={26} color="#333" />
         </TouchableOpacity>
 
+        {/* LOGO */}
         <Image
           source={require("../../assets/images/logo.png")}
           style={styles.logo}
         />
 
-        {/* Espaço fantasma para centralizar */}
+        {/* Espaço fantasma */}
         <View style={{ width: 26 }} />
 
       </View>
@@ -45,7 +48,7 @@ export default function Bens() {
       {/* TÍTULO */}
       <Text style={styles.title}>BENS</Text>
 
-      {/* CARD PRINCIPAL */}
+      {/* CARD */}
       <View style={styles.card}>
 
         {/* BUSCA */}
@@ -129,6 +132,7 @@ export default function Bens() {
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#EAEAEA",
@@ -137,6 +141,7 @@ const styles = StyleSheet.create({
   },
 
   /* TOPO */
+
   topBar: {
     width: "90%",
     flexDirection: "row",
@@ -146,21 +151,9 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 380,
-    height: 220,
+    width: 180,
+    height: 60,
     resizeMode: "contain",
-  },
-
-  left: {
-    textAlign: "left",
-  },
-
-  center: {
-    textAlign: "center",
-  },
-
-  right: {
-    textAlign: "right",
   },
 
   title: {
@@ -169,6 +162,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
+  /* CARD */
+
   card: {
     width: "90%",
     backgroundColor: "#FFF",
@@ -176,6 +171,8 @@ const styles = StyleSheet.create({
     padding: 12,
     flex: 1,
   },
+
+  /* BUSCA */
 
   searchContainer: {
     flexDirection: "row",
@@ -191,6 +188,8 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
   },
+
+  /* FILTROS */
 
   filters: {
     flexDirection: "row",
@@ -224,6 +223,8 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 
+  /* TABELA */
+
   tableHeader: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -247,13 +248,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  active: {
-    color: "green",
-  },
+  left: { textAlign: "left" },
+  center: { textAlign: "center" },
+  right: { textAlign: "right" },
 
-  inactive: {
-    color: "red",
-  },
+  active: { color: "green" },
+  inactive: { color: "red" },
+
+  /* BOTÃO */
 
   moreButton: {
     backgroundColor: "#1E90FF",
@@ -268,6 +270,8 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
+
+  /* RESUMO */
 
   summaryCard: {
     flexDirection: "row",
@@ -290,4 +294,5 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
   },
+
 });

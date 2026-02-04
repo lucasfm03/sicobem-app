@@ -8,6 +8,7 @@ import {
 
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function RelatoriosScreen() {
 
@@ -15,6 +16,13 @@ export default function RelatoriosScreen() {
 
   return (
     <View style={styles.container}>
+
+      {/* BOTÃO SAIR */}
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity onPress={() => router.replace("/login")}>
+          <Ionicons name="log-out-outline" size={26} color="#333" />
+        </TouchableOpacity>
+      </View>
 
       {/* LOGO */}
       <Image
@@ -143,6 +151,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F4F4F4",
     padding: 20,
+  },
+
+  /* LOGOUT */
+  logoutContainer: {
+    position: "absolute",
+    top: 45,
+    right: 20,
+    zIndex: 10,
   },
 
   logo: {

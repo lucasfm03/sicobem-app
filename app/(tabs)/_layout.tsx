@@ -47,13 +47,13 @@ export default function TabLayout() {
         }}
       />
 
-      {/* BENS */}
+      {/* PERFIL */}
       <Tabs.Screen
-        name="bens"
+        name="perfil"
         options={{
-          title: "Bens",
+          title: "Perfil",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cube" color={color} size={22} />
+            <Ionicons name="person" color={color} size={size} />
           ),
         }}
       />

@@ -6,13 +6,18 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  Alert,
 } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { router } from "expo-router";
 import { api } from "../services/api";
 
 export default function Home() {
+
   const [search, setSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const setores = [
     "Setor 01",
@@ -24,8 +29,29 @@ export default function Home() {
     "Inservíveis",
   ];
 
+  function handleDeleteSetor(nome: string) {
+    Alert.alert(
+      "Excluir setor",
+      `Deseja realmente excluir ${nome}?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir", style: "destructive", onPress: () => {
+            console.log("Excluir:", nome);
+          }
+        }
+      ]
+    );
+  }
+
   return (
     <View style={styles.container}>
+
+      {/* BOTÃO SAIR */}
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity onPress={() => router.replace("/login")}>
+          <Ionicons name="log-out-outline" size={26} color="#333" />
+        </TouchableOpacity>
+      </View>
 
       {/* LOGO */}
       <View style={styles.logoContainer}>
@@ -54,40 +80,136 @@ export default function Home() {
 
         {/* LISTA */}
         <FlatList
-          data={setores}
+          data={setores.filter(s =>
+            s.toLowerCase().includes(search.toLowerCase())
+          )}
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
-            <View style={styles.item}>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => router.push("/bens")}
+            >
 
               <Text style={styles.itemText}>{item}</Text>
 
               <View style={styles.actions}>
-                <Ionicons name="pencil" size={20} color="#1E90FF" />
-                <Ionicons name="trash" size={20} color="red" />
-                <Ionicons name="chevron-forward" size={22} color="#555" />
+
+                {/* EDITAR */}
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push("/setores/renomear")
+                  }
+                >
+                  <Ionicons
+                    name="pencil"
+                    size={20}
+                    color="#1E90FF"
+                  />
+                </TouchableOpacity>
+
+                {/* EXCLUIR */}
+                <TouchableOpacity
+                  onPress={() => handleDeleteSetor(item)}
+                >
+                  <Ionicons
+                    name="trash"
+                    size={20}
+                    color="red"
+                  />
+                </TouchableOpacity>
+
+                {/* ENTRAR */}
+                <Ionicons
+                  name="chevron-forward"
+                  size={22}
+                  color="#555"
+                />
+
               </View>
 
-            </View>
+            </TouchableOpacity>
           )}
         />
 
       </View>
 
       {/* BOTÃO CADASTRAR */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => setShowModal(true)}
+      >
         <Text style={styles.buttonText}>CADASTRAR</Text>
       </TouchableOpacity>
+
+      {/* ===== MODAL ===== */}
+      {showModal && (
+
+        <View style={styles.overlay}>
+
+          <View style={styles.modalCard}>
+
+            <Text style={styles.modalTitle}>
+              O que deseja cadastrar?
+            </Text>
+
+            {/* CADASTRAR SETOR */}
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setShowModal(false);
+                router.push("/cadastrar-setor");
+              }}
+            >
+              <Text style={styles.modalButtonText}>
+                CADASTRAR SETOR
+              </Text>
+            </TouchableOpacity>
+
+            {/* CATEGORIA DE BEM */}
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setShowModal(false);
+                router.push("/cadastrar-categoria-bem");
+              }}
+            >
+              <Text style={styles.modalButtonText}>
+                CATEGORIA DE BEM
+              </Text>
+            </TouchableOpacity>
+
+            {/* CANCELAR */}
+            <TouchableOpacity
+              onPress={() => setShowModal(false)}
+            >
+              <Text style={styles.cancelText}>Cancelar</Text>
+            </TouchableOpacity>
+
+          </View>
+
+        </View>
+
+      )}
 
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#EAEAEA",
     alignItems: "center",
     paddingTop: 40,
+  },
+
+  /* LOGOUT */
+  logoutContainer: {
+    position: "absolute",
+    top: 45,
+    right: 20,
+    zIndex: 10,
   },
 
   logoContainer: {
@@ -159,4 +281,51 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
+
+  /* ===== MODAL ===== */
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalCard: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    padding: 25,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 25,
+  },
+
+  modalButton: {
+    width: "100%",
+    backgroundColor: "#2E6BE6",
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 12,
+    alignItems: "center",
+  },
+
+  modalButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+
+  cancelText: {
+    marginTop: 10,
+    color: "#999",
+  },
+
 });
