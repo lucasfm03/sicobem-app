@@ -8,8 +8,52 @@ import {
 } from "react-native";
 import Input from "../components/Input";
 import { router } from "expo-router";
+import Popup from "../components/Popup";
+import { useState } from "react";
+import { api } from "../services/api";
 
 export default function Register() {
+  const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [showError, setShowError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  async function handleRegister() {
+    if (!nome || !cpf || !email || !senha || !confirmarSenha) {
+      setErrorMsg("Preencha todos os campos");
+      setShowError(true);
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      setErrorMsg("As senhas não coincidem");
+      setShowError(true);
+      return;
+    }
+
+    try {
+      await api.post("/cadastro", {
+        nome,
+        cpf,
+        email,
+        senha,
+      });
+
+      // sucesso → volta pro login
+      router.replace("/login");
+
+    } catch (err) {
+      setErrorMsg(
+        err.response?.data?.erro || "Erro ao realizar cadastro"
+      );
+      setShowError(true);
+    }
+  }
+
+
   return (
     <View style={styles.container}>
 
@@ -32,23 +76,40 @@ export default function Register() {
         <Text style={styles.title}>CADASTRO</Text>
 
         {/* FORMULÁRIO */}
-        <Text style={styles.label}>Nome completo</Text>
-        <Input placeholder="Nome completo" />
+        <Input
+          placeholder="Nome completo"
+          value={nome}
+          onChangeText={setNome}
+        />
 
-        <Text style={styles.label}>CPF</Text>
-        <Input placeholder="CPF" />
+        <Input
+          placeholder="CPF"
+          value={cpf}
+          onChangeText={setCpf}
+        />
 
-        <Text style={styles.label}>Email</Text>
-        <Input placeholder="Email" />
+        <Input
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-        <Text style={styles.label}>Senha</Text>
-        <Input placeholder="Crie uma senha" secure />
+        <Input
+          placeholder="Crie uma senha"
+          secure
+          value={senha}
+          onChangeText={setSenha}
+        />
 
-        <Text style={styles.label}>Confirmar senha</Text>
-        <Input placeholder="Repita a senha" secure />
+        <Input
+          placeholder="Repita a senha"
+          secure
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
+        />
 
         {/* BOTÃO */}
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>CADASTRAR</Text>
         </TouchableOpacity>
 
@@ -68,6 +129,15 @@ export default function Register() {
           Desenvolvido pela equipe WLL
         </Text>
       </View>
+
+    <Popup
+      visible={showError}
+      title="ERRO NO CADASTRO"
+      description={errorMsg}
+      buttonText="OK"
+      color="red"
+      onClose={() => setShowError(false)}
+    />
 
     </View>
   );

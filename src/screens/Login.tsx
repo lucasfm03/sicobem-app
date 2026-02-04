@@ -10,20 +10,41 @@ import Input from "../components/Input";
 import { router } from "expo-router";
 import Popup from "../components/Popup";
 import { useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '../services/api';
 
 export default function Login() {
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
   const [showError, setShowError] = useState(false);
 
-  function handleLogin() {
-    if (!cpf || !senha) {
-      setShowError(true);
-      return;
-    }
-
-    router.replace("/(tabs)/home");
+ async function handleLogin() {
+  if (!cpf || !senha) {
+    setShowError(true);
+    return;
   }
+
+  try {
+    const response = await api.post('/login', {
+      cpf,
+      senha,
+    });
+
+    const { token, usuario } = response.data;
+
+    // salvar token
+    await AsyncStorage.setItem('token', token);
+    await AsyncStorage.setItem('usuario', JSON.stringify(usuario));
+
+    // ir para home
+    router.replace("/(tabs)/home");
+
+  } catch (err) {
+    console.log(err.response?.data);
+    setShowError(true);
+  }
+}
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

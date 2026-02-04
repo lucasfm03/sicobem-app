@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 type Props = {
   visible: boolean;
   title: string;
+  description?: string;
   buttonText: string;
   color: string;
   onClose: () => void;
@@ -11,6 +12,7 @@ type Props = {
 export default function Popup({
   visible,
   title,
+  description,
   buttonText,
   color,
   onClose,
@@ -24,6 +26,10 @@ export default function Popup({
           <Text style={[styles.icon, { color }]}>{color === "red" ? "✖" : "✔"}</Text>
 
           <Text style={styles.title}>{title}</Text>
+
+          {description ? (
+          <Text style={styles.description}>{description}</Text>
+          ) : null}
 
           <TouchableOpacity
             style={[styles.button, { backgroundColor: color }]}
@@ -66,6 +72,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
+
+  description: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+
 
   button: {
     paddingHorizontal: 30,
