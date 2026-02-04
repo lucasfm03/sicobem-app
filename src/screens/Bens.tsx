@@ -114,10 +114,21 @@ export default function Bens() {
           )}
         />
 
-        {/* MOSTRAR MAIS */}
-        <TouchableOpacity style={styles.moreButton}>
-          <Text style={styles.moreText}>MOSTRAR MAIS</Text>
-        </TouchableOpacity>
+        {/* BOTÕES */}
+        <View style={styles.buttonsRow}>
+
+          <TouchableOpacity style={styles.moreButton}>
+            <Text style={styles.moreText}>MOSTRAR MAIS</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.moreButton}
+            onPress={() => router.push("/cadastrar-bem")}
+          >
+            <Text style={styles.moreText}>CADASTRAR BEM</Text>
+          </TouchableOpacity>
+
+        </View>
 
       </View>
 
@@ -151,8 +162,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 180,
-    height: 60,
+    width: 380,
+    height: 220,
     resizeMode: "contain",
   },
 
@@ -255,20 +266,28 @@ const styles = StyleSheet.create({
   active: { color: "green" },
   inactive: { color: "red" },
 
-  /* BOTÃO */
+  /* BOTÕES */
+
+  buttonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+    gap: 10,
+  },
 
   moreButton: {
     backgroundColor: "#1E90FF",
     height: 40,
+    flex: 1,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
   },
 
   moreText: {
     color: "#FFF",
     fontWeight: "bold",
+    fontSize: 13,
   },
 
   /* RESUMO */
