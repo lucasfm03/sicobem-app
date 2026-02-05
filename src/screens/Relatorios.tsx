@@ -93,7 +93,10 @@ export default function RelatoriosScreen() {
       {/* FILTROS */}
       <View style={styles.card}>
 
-        {renderItem("Bens", "cube")}
+        {renderItem("Bens", "cube", () =>
+          router.push("/relatorios/relatoriobens")
+        )}
+
         {renderItem("Setor", "location")}
         {renderItem("Organização", "business")}
         {renderItem("Situação", "settings")}
@@ -119,9 +122,17 @@ export default function RelatoriosScreen() {
 }
 
 /* ITEM PADRÃO */
-function renderItem(label: string, icon: any) {
+function renderItem(
+  label: string,
+  icon: any,
+  onPress?: () => void
+) {
   return (
-    <TouchableOpacity style={styles.listItem}>
+    <TouchableOpacity
+      style={styles.listItem}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
 
       <View style={styles.left}>
 

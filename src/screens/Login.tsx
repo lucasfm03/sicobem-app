@@ -6,45 +6,94 @@ import {
   Image,
   ScrollView,
 } from "react-native";
+
 import Input from "../components/Input";
 import { router } from "expo-router";
 import Popup from "../components/Popup";
 import { useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../services/api';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "../services/api";
 
 export default function Login() {
+
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
+
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("Credenciais inválidas");
 
- async function handleLogin() {
-  if (!cpf || !senha) {
-    setShowError(true);
-    return;
+  /* ================= CPF ================= */
+
+  function formatCPF(value: string) {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   }
 
-  try {
-    const response = await api.post('/login', {
-      cpf,
-      senha,
-    });
+  function isValidCPF(cpf: string) {
+    cpf = cpf.replace(/\D/g, "");
 
-    const { token, usuario } = response.data;
+    if (cpf.length !== 11) return false;
+    if (/^(\d)\1+$/.test(cpf)) return false;
 
-    // salvar token
-    await AsyncStorage.setItem('token', token);
-    await AsyncStorage.setItem('usuario', JSON.stringify(usuario));
+    let soma = 0;
+    let resto;
 
-    // ir para home
-    router.replace("/(tabs)/home");
+    for (let i = 1; i <= 9; i++)
+      soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
 
-  } catch (err) {
-    console.log(err.response?.data);
-    setShowError(true);
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(9, 10))) return false;
+
+    soma = 0;
+
+    for (let i = 1; i <= 10; i++)
+      soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(10, 11))) return false;
+
+    return true;
   }
-}
 
+  /* ================= LOGIN ================= */
+
+  async function handleLogin() {
+
+    if (!cpf || !senha) {
+      setErrorMessage("Preencha todos os campos");
+      setShowError(true);
+      return;
+    }
+
+    if (!isValidCPF(cpf)) {
+      setErrorMessage("CPF inválido");
+      setShowError(true);
+      return;
+    }
+
+    try {
+      const response = await api.post("/login", {
+        cpf: cpf.replace(/\D/g, ""),
+        senha,
+      });
+
+      const { token, usuario } = response.data;
+
+      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("usuario", JSON.stringify(usuario));
+
+      router.replace("/(tabs)/home");
+
+    } catch (err) {
+      setErrorMessage("Credenciais inválidas");
+      setShowError(true);
+    }
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -66,8 +115,10 @@ export default function Login() {
 
         <Input
           placeholder="CPF"
+          keyboardType="numeric"
           value={cpf}
-          onChangeText={setCpf}
+          onChangeText={(text: string) => setCpf(formatCPF(text))}
+          maxLength={14}
         />
 
         <Input
@@ -112,10 +163,10 @@ export default function Login() {
         </Text>
       </View>
 
-      {/* POPUP DE ERRO */}
+      {/* POPUP */}
       <Popup
         visible={showError}
-        title="CREDENCIAIS INVÁLIDAS"
+        title={errorMessage}
         buttonText="VOLTAR"
         color="red"
         onClose={() => setShowError(false)}
@@ -125,7 +176,10 @@ export default function Login() {
   );
 }
 
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
+
   container: {
     flexGrow: 1,
     backgroundColor: "#EAEAEA",
@@ -202,4 +256,5 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 12,
   },
+
 });

@@ -9,16 +9,24 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { api } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+/* =======================
+   TYPE
+======================= */
+type Setor = {
+  id_setor: number;
+  nome: string;
+};
 
 export default function Home() {
 
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [setores, setSetores] = useState([]);
+  const [setores, setSetores] = useState<Setor[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function carregarSetores() {
@@ -32,11 +40,12 @@ export default function Home() {
       });
 
       setSetores(response.data);
-    } catch (err) {
+
+    } catch (err: any) {
       Alert.alert(
         "Erro",
-        err.message ||
-        err.response?.data?.erro ||
+        err?.response?.data?.erro ||
+        err?.message ||
         "Não foi possível carregar os setores"
       );
     } finally {
@@ -44,20 +53,23 @@ export default function Home() {
     }
   }
 
-
   function handleDeleteSetor(nome: string) {
     Alert.alert(
       "Excluir setor",
       `Deseja realmente excluir ${nome}?`,
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Excluir", style: "destructive", onPress: () => {
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => {
             console.log("Excluir:", nome);
           }
         }
       ]
     );
   }
+
   useEffect(() => {
     carregarSetores();
   }, []);
@@ -100,9 +112,9 @@ export default function Home() {
         {/* LISTA */}
         <FlatList
           data={setores.filter(s =>
-            s.nome.toLowerCase().includes(search.toLowerCase())
+            s.nome?.toLowerCase().includes(search.toLowerCase())
           )}
-          keyExtractor={(item) => item.id_setor.toString()}
+          keyExtractor={(item) => String(item.id_setor)}
           refreshing={loading}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -193,9 +205,7 @@ export default function Home() {
             </TouchableOpacity>
 
             {/* CANCELAR */}
-            <TouchableOpacity
-              onPress={() => setShowModal(false)}
-            >
+            <TouchableOpacity onPress={() => setShowModal(false)}>
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
 
@@ -209,6 +219,9 @@ export default function Home() {
   );
 }
 
+/* =======================
+   STYLES
+======================= */
 const styles = StyleSheet.create({
 
   container: {
@@ -218,7 +231,6 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
 
-  /* LOGOUT */
   logoutContainer: {
     position: "absolute",
     top: 45,
@@ -295,8 +307,6 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
-
-  /* ===== MODAL ===== */
 
   overlay: {
     position: "absolute",

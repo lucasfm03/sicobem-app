@@ -12,7 +12,57 @@ import Popup from "../components/Popup";
 import { useState } from "react";
 import { api } from "../services/api";
 
+/* ===================== */
+/* FUNÇÕES AUXILIARES */
+/* ===================== */
+
+function formatCPF(value: string): string {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+    .slice(0, 14);
+}
+
+function isValidCPF(cpf: string): boolean {
+  const cleaned = cpf.replace(/\D/g, "");
+
+  if (cleaned.length !== 11) return false;
+  if (/^(\d)\1+$/.test(cleaned)) return false;
+
+  let sum = 0;
+  let rest;
+
+  for (let i = 1; i <= 9; i++)
+    sum += parseInt(cleaned.substring(i - 1, i)) * (11 - i);
+
+  rest = (sum * 10) % 11;
+  if (rest === 10 || rest === 11) rest = 0;
+  if (rest !== parseInt(cleaned.substring(9, 10))) return false;
+
+  sum = 0;
+  for (let i = 1; i <= 10; i++)
+    sum += parseInt(cleaned.substring(i - 1, i)) * (12 - i);
+
+  rest = (sum * 10) % 11;
+  if (rest === 10 || rest === 11) rest = 0;
+  if (rest !== parseInt(cleaned.substring(10, 11))) return false;
+
+  return true;
+}
+
+function isValidEmail(email: string): boolean {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+/* ===================== */
+/* COMPONENTE */
+/* ===================== */
+
 export default function Register() {
+
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
@@ -22,8 +72,21 @@ export default function Register() {
   const [errorMsg, setErrorMsg] = useState("");
 
   async function handleRegister() {
+
     if (!nome || !cpf || !email || !senha || !confirmarSenha) {
       setErrorMsg("Preencha todos os campos");
+      setShowError(true);
+      return;
+    }
+
+    if (!isValidCPF(cpf)) {
+      setErrorMsg("CPF inválido");
+      setShowError(true);
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setErrorMsg("Email inválido");
       setShowError(true);
       return;
     }
@@ -37,15 +100,14 @@ export default function Register() {
     try {
       await api.post("/cadastro", {
         nome,
-        cpf,
+        cpf: cpf.replace(/\D/g, ""),
         email,
         senha,
       });
 
-      // sucesso → volta pro login
       router.replace("/login");
 
-    } catch (err) {
+    } catch (err: any) {
       setErrorMsg(
         err.response?.data?.erro || "Erro ao realizar cadastro"
       );
@@ -53,15 +115,14 @@ export default function Register() {
     }
   }
 
-
   return (
     <View style={styles.container}>
 
-      {/* CONTEÚDO COM SCROLL */}
       <ScrollView contentContainerStyle={styles.content}>
 
         {/* TOPO */}
         <View style={styles.header}>
+
           <TouchableOpacity onPress={() => router.back()}>
             <Text style={styles.back}>←</Text>
           </TouchableOpacity>
@@ -70,6 +131,7 @@ export default function Register() {
             source={require("../../assets/images/logo.png")}
             style={styles.logo}
           />
+
         </View>
 
         {/* TÍTULO */}
@@ -84,12 +146,14 @@ export default function Register() {
 
         <Input
           placeholder="CPF"
+          keyboardType="numeric"
           value={cpf}
-          onChangeText={setCpf}
+          onChangeText={(text: string) => setCpf(formatCPF(text))}
         />
 
         <Input
           placeholder="Email"
+          keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
         />
@@ -109,11 +173,14 @@ export default function Register() {
         />
 
         {/* BOTÃO */}
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRegister}
+        >
           <Text style={styles.buttonText}>CADASTRAR</Text>
         </TouchableOpacity>
 
-        {/* LINK LOGIN */}
+        {/* LOGIN */}
         <TouchableOpacity onPress={() => router.push("/login")}>
           <Text style={styles.loginLink}>
             Já tem uma conta? <Text style={styles.login}>Login</Text>
@@ -130,19 +197,26 @@ export default function Register() {
         </Text>
       </View>
 
-    <Popup
-      visible={showError}
-      title="ERRO NO CADASTRO"
-      description={errorMsg}
-      buttonText="OK"
-      color="red"
-      onClose={() => setShowError(false)}
-    />
+      {/* POPUP */}
+      <Popup
+        visible={showError}
+        title="ERRO NO CADASTRO"
+        description={errorMsg}
+        buttonText="OK"
+        color="red"
+        onClose={() => setShowError(false)}
+      />
 
     </View>
   );
 }
+
+/* ===================== */
+/* ESTILOS */
+/* ===================== */
+
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#EAEAEA",
@@ -175,11 +249,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
-  },
-
-  label: {
-    marginBottom: 4,
-    fontSize: 14,
   },
 
   button: {
@@ -218,4 +287,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
   },
+
 });
