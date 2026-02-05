@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
   Image
 } from "react-native";
 
@@ -10,17 +11,43 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-export default function RelatoriosScreen() {
+export default function RelatorioSetor() {
 
   const [formato, setFormato] = useState<"pdf" | "excel" | null>(null);
+
+  const [setoresSelecionados, setSetoresSelecionados] = useState<string[]>([]);
+
+  const setores = [
+    "Atendimento Previdenciário",
+    "Diretoria Administrativa e Financeira",
+    "Diretoria de Atendimento e Cadastro",
+    "Gestão de Pessoas",
+    "Diretoria de Fundo de Previdência",
+    "Inativos"
+  ];
+
+  function toggleSetor(nome: string) {
+    if (setoresSelecionados.includes(nome)) {
+      setSetoresSelecionados(
+        setoresSelecionados.filter(item => item !== nome)
+      );
+    } else {
+      setSetoresSelecionados([...setoresSelecionados, nome]);
+    }
+  }
+
+  function limparFiltros() {
+    setFormato(null);
+    setSetoresSelecionados([]);
+  }
 
   return (
     <View style={styles.container}>
 
-      {/* BOTÃO SAIR */}
+      {/* LOGOUT */}
       <View style={styles.logoutContainer}>
-        <TouchableOpacity onPress={() => router.replace("/login")}>
-          <Ionicons name="log-out-outline" size={26} color="#333" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={26} color="#333" />
         </TouchableOpacity>
       </View>
 
@@ -33,7 +60,7 @@ export default function RelatoriosScreen() {
       {/* TÍTULO */}
       <Text style={styles.title}>RELATÓRIOS</Text>
 
-      {/* CARD FORMATO */}
+      {/* FORMATO */}
       <View style={styles.card}>
 
         <Text style={styles.sectionTitle}>SELECIONE A OPÇÃO</Text>
@@ -46,11 +73,7 @@ export default function RelatoriosScreen() {
             onPress={() => setFormato("pdf")}
           >
 
-            <Ionicons
-              name="document-text"
-              size={22}
-              color="#2E6BE6"
-            />
+            <Ionicons name="document-text" size={22} color="#2E6BE6" />
 
             <Text style={styles.radioText}>PDF</Text>
 
@@ -69,11 +92,7 @@ export default function RelatoriosScreen() {
             onPress={() => setFormato("excel")}
           >
 
-            <Ionicons
-              name="grid"
-              size={22}
-              color="#2E6BE6"
-            />
+            <Ionicons name="grid" size={22} color="#2E6BE6" />
 
             <Text style={styles.radioText}>EXCEL</Text>
 
@@ -90,25 +109,51 @@ export default function RelatoriosScreen() {
 
       </View>
 
-      {/* FILTROS */}
+      {/* SETORES */}
       <View style={styles.card}>
 
-        {renderItem("Bens", "cube", () =>
-          router.push("/relatorios/relatoriobens")
-        )}
+        <View style={styles.headerRow}>
+          <Ionicons name="business" size={22} color="#62CB18" />
+          <Text style={styles.cardTitle}>Setor</Text>
+        </View>
 
-        {renderItem("Setor", "location", () => 
-          router.push("/relatorios/relatoriosetor"))}
-        {renderItem("Organização", "business")}
-        {renderItem("Situação", "settings")}
-        {renderItem("Aquisição", "cash")}
+        <ScrollView>
+
+          {setores.map(setor => (
+
+            <TouchableOpacity
+              key={setor}
+              style={styles.checkbox}
+              onPress={() => toggleSetor(setor)}
+            >
+
+              <Ionicons
+                name={
+                  setoresSelecionados.includes(setor)
+                    ? "checkbox"
+                    : "square-outline"
+                }
+                size={22}
+                color="#2E6BE6"
+              />
+
+              <Text style={styles.checkText}>{setor}</Text>
+
+            </TouchableOpacity>
+
+          ))}
+
+        </ScrollView>
 
       </View>
 
       {/* BOTÕES */}
       <View style={styles.actions}>
 
-        <TouchableOpacity style={styles.clearBtn}>
+        <TouchableOpacity
+          style={styles.clearBtn}
+          onPress={limparFiltros}
+        >
           <Text style={styles.clearText}>LIMPAR FILTROS</Text>
         </TouchableOpacity>
 
@@ -122,40 +167,9 @@ export default function RelatoriosScreen() {
   );
 }
 
-/* ITEM PADRÃO */
-function renderItem(
-  label: string,
-  icon: any,
-  onPress?: () => void
-) {
-  return (
-    <TouchableOpacity
-      style={styles.listItem}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-
-      <View style={styles.left}>
-
-        <Ionicons
-          name={icon}
-          size={22}
-          color="#62CB18"
-        />
-
-        <Text style={styles.itemText}>{label}</Text>
-
-      </View>
-
-      <Ionicons
-        name="chevron-forward"
-        size={22}
-        color="#999"
-      />
-
-    </TouchableOpacity>
-  );
-}
+/* ===================== */
+/* ESTILOS */
+/* ===================== */
 
 const styles = StyleSheet.create({
 
@@ -165,11 +179,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
-  /* LOGOUT */
   logoutContainer: {
     position: "absolute",
     top: 45,
-    right: 20,
+    left: 20,
     zIndex: 10,
   },
 
@@ -233,22 +246,26 @@ const styles = StyleSheet.create({
 
   /* LISTA */
 
-  listItem: {
+  headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
+    gap: 8,
+    marginBottom: 10,
   },
 
-  left: {
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  checkbox: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginBottom: 10,
   },
 
-  itemText: {
+  checkText: {
     fontSize: 15,
   },
 
