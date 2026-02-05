@@ -1,18 +1,18 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://10.7.24.96:3000",
+  baseURL: "http://10.7.24.163:3000",
   timeout: 10000,
 });
 
-// interceptor de erro
 api.interceptors.response.use(
   response => response,
   error => {
-    // não conseguiu conectar
+    // servidor não respondeu (timeout, servidor off, rede)
     if (!error.response) {
       return Promise.reject({
-        message: "Não foi possível conectar ao servidor. Verifique sua internet ou tente novamente."
+        isConnectionError: true,
+        message: "Não foi possível conectar ao servidor. Tente novamente."
       });
     }
 
