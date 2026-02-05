@@ -8,14 +8,83 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { api } from "../services/api";
+import Popup from "../components/Popup";
 
 export default function CadastroSetorScreen() {
+
+  const [nome, setNome] = useState("");
+  const [abreviacao, setAbreviacao] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  
+
+
+  async function handleCadastrar() {
+
+    setShowError(false);
+    setShowSuccess(false);
+
+    if (!nome || !abreviacao) {
+      setErrorMessage("Preencha todos os campos obrigatórios");
+      setShowError(true);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        setErrorMessage(
+          "Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK"
+        );
+        setShowError(true);
+        return;
+      }
+
+      await api.post(
+        "/setores",
+        { nome, abreviacao },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // 🔥 FORÇA RE-RENDER
+      setTimeout(() => {
+        setShowSuccess(true);
+      }, 100);
+
+
+    } catch (err: any) {
+
+      setErrorMessage(
+        err?.response?.data?.erro ||
+        err?.message ||
+        "Servidor indisponível no momento"
+      );
+      setShowError(true);
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+
   return (
     <View style={styles.container}>
 
       {/* TOPO */}
       <View style={styles.header}>
-
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
@@ -26,10 +95,8 @@ export default function CadastroSetorScreen() {
         />
 
         <View style={{ width: 26 }} />
-
       </View>
 
-      {/* TÍTULO */}
       <Text style={styles.title}>CADASTRO DE SETOR</Text>
 
       {/* FORM */}
@@ -42,6 +109,8 @@ export default function CadastroSetorScreen() {
         <TextInput
           style={styles.input}
           placeholder="Ex: Recursos Humanos"
+          value={nome}
+          onChangeText={setNome}
         />
 
         <Text style={styles.label}>
@@ -51,31 +120,59 @@ export default function CadastroSetorScreen() {
         <TextInput
           style={styles.input}
           placeholder="Ex: RH"
+          value={abreviacao}
+          onChangeText={setAbreviacao}
+          maxLength={10}
+          autoCapitalize="characters"
         />
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>CADASTRAR</Text>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            loading && { opacity: 0.7 },
+          ]}
+          onPress={handleCadastrar}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "SALVANDO..." : "CADASTRAR"}
+          </Text>
         </TouchableOpacity>
 
       </View>
 
       {/* RODAPÉ */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          © 2026 App Sicobem
-        </Text>
-
+        <Text style={styles.footerText}>© 2026 App Sicobem</Text>
         <Text style={styles.footerText}>
           Desenvolvido pelos capangas do Alan
         </Text>
       </View>
 
+      <Popup
+        visible={showError}
+        title="Erro"
+        description={errorMessage}
+        buttonText="OK"
+        color="red"
+        onClose={() => setShowError(false)}
+      />
+
+      <Popup
+        visible={showSuccess}
+        title="Setor cadastrado com sucesso"
+        buttonText="Voltar para início"
+        color="green"
+        onClose={() => {
+          setShowSuccess(false);
+          router.replace("/home");
+        }}
+      />
+
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: "#F4F4F4",
@@ -150,5 +247,4 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 12,
   },
-
 });

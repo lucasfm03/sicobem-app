@@ -31,6 +31,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [setorToDelete, setSetorToDelete] = useState<Setor | null>(null);
+
 
 
   async function carregarSetores() {
@@ -63,21 +66,39 @@ export default function Home() {
     }
   }
 
-  function handleDeleteSetor(nome: string) {
-    Alert.alert(
-      "Excluir setor",
-      `Deseja realmente excluir ${nome}?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => {
-            console.log("Excluir:", nome);
-          }
-        }
-      ]
-    );
+  async function confirmarExclusao() {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token || !setorToDelete) {
+        setErrorMessage(
+          "Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK"
+        );
+        setShowError(true);
+        return;
+      }
+
+      await api.delete(`/setores/${setorToDelete.id_setor}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setShowConfirmDelete(false);
+      setSetorToDelete(null);
+
+      // 🔄 Recarrega lista
+      setLoading(true);
+      carregarSetores();
+
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.erro ||
+        err?.message ||
+        "Erro ao excluir o setor"
+      );
+      setShowError(true);
+    }
   }
 
   useEffect(() => {
@@ -155,8 +176,10 @@ export default function Home() {
 
                 {/* EXCLUIR */}
                 <TouchableOpacity
-                  onPress={() => handleDeleteSetor(item.nome)}
-                >
+                  onPress={() => {
+                    setSetorToDelete(item);
+                    setShowConfirmDelete(true);
+                  }}>
                   <Ionicons name="trash" size={20} color="red" />
                 </TouchableOpacity>
 
@@ -227,13 +250,20 @@ export default function Home() {
 
       <Popup
         visible={showError}
-        title="Sessão inválida"
-        buttonText="Ir para login"
+        title="Erro"
+        description={errorMessage}
+        buttonText="OK"
         color="red"
-        onClose={() => {
-          setShowError(false);
-          router.replace("/login");
-        }}
+        onClose={() => setShowError(false)}
+      />
+
+      <Popup
+        visible={showConfirmDelete}
+        title="Excluir setor"
+        description={`Deseja realmente excluir o setor "${setorToDelete?.nome}"?`}
+        buttonText="Excluir"
+        color="red"
+        onClose={confirmarExclusao}
       />
 
     </View>
