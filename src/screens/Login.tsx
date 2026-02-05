@@ -17,6 +17,7 @@ export default function Login() {
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
   const [showError, setShowError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
  async function handleLogin() {
   if (!cpf || !senha) {
@@ -39,10 +40,20 @@ export default function Login() {
     // ir para home
     router.replace("/(tabs)/home");
 
-  } catch (err) {
-    console.log(err.response?.data);
+  } catch (err:any) {
+    let message = "Erro ao realizar login";
+
+    if (err.type === "connection") {
+      message = err.message;
+    } else if (err.response?.status === 401) {
+      message = "CPF ou senha inválidos";
+    } else if (err.response?.data?.erro) {
+      message = err.response.data.erro;
+    }
+
+    setErrorMsg(message);
     setShowError(true);
-  }
+  } 
 }
 
 
@@ -115,11 +126,13 @@ export default function Login() {
       {/* POPUP DE ERRO */}
       <Popup
         visible={showError}
-        title="CREDENCIAIS INVÁLIDAS"
+        title="ERRO NO LOGIN"
+        description={errorMsg}
         buttonText="VOLTAR"
         color="red"
         onClose={() => setShowError(false)}
       />
+
 
     </ScrollView>
   );

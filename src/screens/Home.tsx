@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { api } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,7 +32,7 @@ export default function Home() {
       });
 
       setSetores(response.data);
-    } catch (err) {
+    } catch (err:any) {
       Alert.alert(
         "Erro",
         err.message ||

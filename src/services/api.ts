@@ -1,21 +1,30 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://10.7.24.96:3000",
+  baseURL: "http://10.7.24.113:3000",
   timeout: 10000,
 });
 
-// interceptor de erro
 api.interceptors.response.use(
   response => response,
   error => {
-    // não conseguiu conectar
-    if (!error.response) {
+    // timeout
+    if (error.code === "ECONNABORTED") {
       return Promise.reject({
-        message: "Não foi possível conectar ao servidor. Verifique sua internet ou tente novamente."
+        type: "connection",
+        message: "O servidor demorou para responder. Tente novamente."
       });
     }
 
+    // servidor fora / sem resposta
+    if (!error.response) {
+      return Promise.reject({
+        type: "connection",
+        message: "Não foi possível conectar ao servidor. Verifique a conexão."
+      });
+    }
+
+    // erro normal da API (401, 400, 500...)
     return Promise.reject(error);
   }
 );
