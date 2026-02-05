@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
+import Popup from "../components/Popup";
 import { router } from "expo-router";
 import { api } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,12 +29,21 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [setores, setSetores] = useState<Setor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   async function carregarSetores() {
     try {
       const token = await AsyncStorage.getItem("token");
 
-      const response = await api.get("/setor", {
+      if (!token) {
+        setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
+        setShowError(true);
+        return;
+      }
+
+      const response = await api.get("/setores", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -215,6 +225,17 @@ export default function Home() {
 
       )}
 
+      <Popup
+        visible={showError}
+        title="Sessão inválida"
+        buttonText="Ir para login"
+        color="red"
+        onClose={() => {
+          setShowError(false);
+          router.replace("/login");
+        }}
+      />
+
     </View>
   );
 }
@@ -280,6 +301,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 12,
+    paddingHorizontal: 40,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
   },
@@ -290,7 +312,16 @@ const styles = StyleSheet.create({
 
   actions: {
     flexDirection: "row",
-    gap: 12,
+    alignItems: "center",
+    gap: 50,
+  },
+
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   button: {

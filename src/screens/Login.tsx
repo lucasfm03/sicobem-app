@@ -18,9 +18,8 @@ export default function Login() {
 
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
-
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("Credenciais inválidas");
+  const [errorMessage, setErrorMessage] = useState("Credenciais inválidas"); //<----
 
   /* ================= CPF ================= */
 
@@ -89,8 +88,23 @@ export default function Login() {
 
       router.replace("/(tabs)/home");
 
-    } catch (err) {
-      setErrorMessage("Credenciais inválidas");
+    } catch (err: any) {
+      // erro de conexão (timeout / servidor off)
+      if (err.isConnectionError) {
+        setErrorMessage("Servidor indisponível no momento");
+        setShowError(true);
+        return;
+      }
+
+      // erro HTTP vindo da API (401, 400, etc)
+      if (err.response) {
+        setErrorMessage(err.response.data?.message || "Credenciais inválidas");
+        setShowError(true);
+        return;
+      }
+
+      // erro genérico
+      setErrorMessage("Erro inesperado. Tente novamente.");
       setShowError(true);
     }
   }
@@ -163,14 +177,14 @@ export default function Login() {
         </Text>
       </View>
 
-      {/* POPUP */}
-      <Popup
+     <Popup
         visible={showError}
         title={errorMessage}
         buttonText="VOLTAR"
         color="red"
         onClose={() => setShowError(false)}
       />
+
 
     </ScrollView>
   );
