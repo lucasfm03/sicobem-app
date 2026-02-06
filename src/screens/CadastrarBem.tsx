@@ -44,6 +44,7 @@ export default function CadastrarBem() {
   const [popupColor, setPopupColor] = useState<"red" | "green">("green");
 
   const [setores, setSetores] = useState<Setor[]>([]);
+  const [selectedSetorId, setSelectedSetorId] = useState<number | null>(null);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -259,6 +260,7 @@ export default function CadastrarBem() {
                   style={styles.modalOption}
                   onPress={() => {
                     setSetor(set.nome);
+                    setSelectedSetorId(set.id_setor);
                     setModalSetorVisible(false);
                   }}
                 >
@@ -367,10 +369,12 @@ export default function CadastrarBem() {
         onClose={() => {
           setShowPopup(false);
           if (popupColor === "green") {
-            router.push({
-              pathname: "/bens",
-              params: { setor },
-            });
+            // preferir id do setor quando disponível
+            if (selectedSetorId) {
+              router.push({ pathname: "/bens", params: { idSetor: String(selectedSetorId) } });
+            } else {
+              router.push({ pathname: "/bens", params: { setor } });
+            }
           }
         }}
       />

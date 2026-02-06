@@ -1,19 +1,19 @@
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
+  Alert,
   FlatList,
   Image,
-  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useState, useEffect } from "react";
 import Popup from "../components/Popup";
-import { router } from "expo-router";
 import { api } from "../services/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /* =======================
    TYPE
@@ -31,6 +31,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isTokenError, setIsTokenError] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [setorToDelete, setSetorToDelete] = useState<Setor | null>(null);
 
@@ -42,6 +43,7 @@ export default function Home() {
 
       if (!token) {
         setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
+        setIsTokenError(true);
         setShowError(true);
         return;
       }
@@ -74,6 +76,7 @@ export default function Home() {
         setErrorMessage(
           "Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK"
         );
+        setIsTokenError(true);
         setShowError(true);
         return;
       }
@@ -101,6 +104,17 @@ export default function Home() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("userId");
+      router.replace("/login");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      router.replace("/login");
+    }
+  }
+
   useEffect(() => {
     carregarSetores();
   }, []);
@@ -110,7 +124,7 @@ export default function Home() {
 
       {/* BOTÃO SAIR */}
       <View style={styles.logoutContainer}>
-        <TouchableOpacity onPress={() => router.replace("/login")}>
+        <TouchableOpacity onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={26} color="#333" />
         </TouchableOpacity>
       </View>
@@ -254,7 +268,13 @@ export default function Home() {
         description={errorMessage}
         buttonText="OK"
         color="red"
-        onClose={() => setShowError(false)}
+        onClose={() => {
+          setShowError(false);
+          if (isTokenError) {
+            setIsTokenError(false);
+            router.replace("/login");
+          }
+        }}
       />
 
       <Popup

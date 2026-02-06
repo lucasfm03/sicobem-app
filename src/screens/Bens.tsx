@@ -1,27 +1,80 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  Image,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useEffect } from "react";
-import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import Popup from "../components/Popup";
 import { api } from "../services/api";
+
+type Bem = {
+  id_bem: number;
+  tombo: string;
+  descricao: string;
+  situacao?: string;
+  id_categoria?: number;
+  id_setor_atual?: number;
+};
 
 export default function Bens() {
 
+  const { idSetor } = useLocalSearchParams();
   const [search, setSearch] = useState("");
+  const [bens, setBens] = useState<Bem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isTokenError, setIsTokenError] = useState(false);
 
-  const bens = [
-    { nome: "Notebook Dell", tombo: "12345", status: "Ativo", categoria: "Computadores", setor: "TI" },
-    { nome: "Impressora HP", tombo: "22334", status: "Ativo", categoria: "Periféricos", setor: "Administração" },
-    { nome: "Mesa Escritório", tombo: "99887", status: "Ativo", categoria: "Móveis", setor: "Recursos Humanos" },
-    { nome: "Monitor LG", tombo: "55443", status: "Inservível", categoria: "Monitores", setor: "Atendimento" },
-  ];
+  useEffect(() => {
+    carregarBens();
+  }, [idSetor]);
+
+  async function carregarBens() {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
+        setIsTokenError(true);
+        setShowError(true);
+        return;
+      }
+
+      if (!idSetor) {
+        setErrorMessage("Setor não identificado.");
+        setShowError(true);
+        return;
+      }
+
+      const response = await api.get(`/bens/setor/${idSetor}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setBens(response.data || []);
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.erro || "Erro ao carregar bens"
+      );
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const bensFiltrados = bens.filter(b =>
+    b.tombo?.toLowerCase().includes(search.toLowerCase()) ||
+    b.descricao?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <View style={styles.container}>
@@ -85,8 +138,8 @@ export default function Bens() {
 
         {/* LISTA */}
         <FlatList
-          data={bens}
-          keyExtractor={(item) => item.tombo}
+          data={bensFiltrados}
+          keyExtractor={(item) => String(item.id_bem)}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.row}
@@ -94,17 +147,17 @@ export default function Bens() {
                 router.push({
                   pathname: "/bem-detalhes",
                   params: {
+                    id_bem: item.id_bem,
                     tombo: item.tombo,
-                    descricao: item.nome,
-                    categoria: item.categoria || "Sem categoria",
-                    setor: item.setor || "Sem setor",
+                    descricao: item.descricao,
+                    situacao: item.situacao || "Sem informação",
                   },
                 })
               }
             >
 
               <Text style={[styles.cell, styles.left]}>
-                {item.nome}
+                {item.descricao}
               </Text>
 
               <Text style={[styles.cell, styles.center]}>
@@ -115,16 +168,22 @@ export default function Bens() {
                 style={[
                   styles.cell,
                   styles.right,
-                  item.status === "Ativo"
+                  item.situacao === "Ativo"
                     ? styles.active
                     : styles.inactive,
                 ]}
               >
-                {item.status}
+                {item.situacao || "N/A"}
               </Text>
 
             </TouchableOpacity>
           )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document" size={50} color="#CCC" />
+              <Text style={styles.emptyText}>Nenhum bem foi encontrado nesse setor</Text>
+            </View>
+          }
         />
 
         {/* BOTÕES */}
@@ -147,9 +206,24 @@ export default function Bens() {
 
       {/* RESUMO */}
       <View style={styles.summaryCard}>
-        <Text style={styles.summaryGreen}>3</Text>
-        <Text style={styles.summaryRed}>1</Text>
+        <Text style={styles.summaryGreen}>{bens.filter(b => b.situacao === "Ativo").length}</Text>
+        <Text style={styles.summaryRed}>{bens.filter(b => b.situacao !== "Ativo").length}</Text>
       </View>
+
+      <Popup
+        visible={showError}
+        title="Erro"
+        description={errorMessage}
+        buttonText="OK"
+        color="red"
+        onClose={() => {
+          setShowError(false);
+          if (isTokenError) {
+            setIsTokenError(false);
+            router.replace("/login");
+          }
+        }}
+      />
 
     </View>
   );
@@ -278,6 +352,20 @@ const styles = StyleSheet.create({
 
   active: { color: "green" },
   inactive: { color: "red" },
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+
+  emptyText: {
+    marginTop: 10,
+    color: "#999",
+    fontSize: 16,
+    textAlign: "center",
+  },
 
   /* BOTÕES */
 
