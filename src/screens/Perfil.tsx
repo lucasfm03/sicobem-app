@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
 
@@ -21,47 +22,47 @@ interface Usuario {
 }
 
 export default function Perfil() {
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [showEditIcon, setShowEditIcon] = useState(false);
+
   const [atualizando, setAtualizando] = useState(false);
-  
+
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     carregarPerfil();
+    carregarFotoSalva();
   }, []);
+
+  async function carregarFotoSalva() {
+    const foto = await AsyncStorage.getItem("fotoPerfil");
+    if (foto) setFotoPerfil(foto);
+  }
+
+  async function salvarFoto(uri: string) {
+    await AsyncStorage.setItem("fotoPerfil", uri);
+  }
 
   async function carregarPerfil() {
     try {
       const token = await AsyncStorage.getItem("token");
-      const usuarioString = await AsyncStorage.getItem("usuario");
-
-      if (!token) {
-        setErrorMessage("Erro ao carregar perfil. Faça login novamente.");
-        setShowError(true);
-        return;
-      }
-
-      // Ler o userId salvo diretamente (apenas token e userId são armazenados)
       const userIdString = await AsyncStorage.getItem("userId");
-      if (!userIdString) {
-        setErrorMessage("Erro ao carregar perfil. Faça login novamente.");
+
+      if (!token || !userIdString) {
+        setErrorMessage("Erro ao carregar perfil.");
         setShowError(true);
         return;
       }
 
       const userId = Number(userIdString);
-      if (!userId || isNaN(userId)) {
-        await AsyncStorage.removeItem("userId");
-        setErrorMessage("Erro ao carregar perfil. Faça login novamente.");
-        setShowError(true);
-        return;
-      }
 
       const response = await api.get(`/usuarios/${userId}`, {
         headers: {
@@ -70,22 +71,47 @@ export default function Perfil() {
       });
 
       const usuario: Usuario = response.data;
+
       setUsuarioId(usuario.id_usuario);
       setNome(usuario.nome || "");
       setEmail(usuario.email || "");
       setCpf(usuario.cpf || "");
+
     } catch (err: any) {
       setErrorMessage(
         err?.response?.data?.erro || "Erro ao carregar perfil"
       );
       setShowError(true);
-    } finally {
-      setLoading(false);
+    }
+  }
+
+  async function escolherImagem() {
+
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      setErrorMessage("Permissão para acessar galeria negada.");
+      setShowError(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setFotoPerfil(uri);
+      salvarFoto(uri);
     }
   }
 
   async function handleAtualizar() {
-    if (!nome.trim() || !email.trim()) {
+
+    if (!nome || !email) {
       setErrorMessage("Nome e email são obrigatórios.");
       setShowError(true);
       return;
@@ -93,6 +119,7 @@ export default function Perfil() {
 
     try {
       setAtualizando(true);
+
       const token = await AsyncStorage.getItem("token");
 
       if (!token || !usuarioId) {
@@ -101,17 +128,22 @@ export default function Perfil() {
         return;
       }
 
-      await api.put(`/usuarios/${usuarioId}`, {
-        nome: nome.trim(),
-        email: email.trim(),
-        cpf: cpf.trim() || null,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await api.put(
+        `/usuarios/${usuarioId}`,
+        {
+          nome,
+          email,
+          cpf: cpf || null,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setShowSuccess(true);
+
     } catch (err: any) {
       setErrorMessage(
         err?.response?.data?.erro || "Erro ao atualizar perfil"
@@ -123,20 +155,14 @@ export default function Perfil() {
   }
 
   async function handleLogout() {
-    try {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("userId");
-      router.replace("/login");
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      router.replace("/login");
-    }
+    await AsyncStorage.multiRemove(["token", "userId"]);
+    router.replace("/login");
   }
 
   return (
     <View style={styles.container}>
 
-      {/* BOTÃO SAIR */}
+      {/* LOGOUT */}
       <View style={styles.logoutContainer}>
         <TouchableOpacity onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={26} color="#333" />
@@ -149,15 +175,36 @@ export default function Perfil() {
         style={styles.logo}
       />
 
-      {/* TÍTULO */}
       <Text style={styles.title}>Perfil</Text>
 
-      {/* ÍCONE CENTRAL */}
-      <View style={styles.avatar}>
-        <Ionicons name="people" size={70} color="#999" />
-      </View>
+      {/* AVATAR */}
+      <TouchableOpacity
+        style={styles.avatar}
+        onPress={() => setShowEditIcon(!showEditIcon)}
+        activeOpacity={0.8}
+      >
 
-      {/* FORMULÁRIO */}
+        {fotoPerfil ? (
+          <Image
+            source={{ uri: fotoPerfil }}
+            style={styles.avatarImage}
+          />
+        ) : (
+          <Ionicons name="person" size={70} color="#999" />
+        )}
+
+        {showEditIcon && (
+          <TouchableOpacity
+            style={styles.editIcon}
+            onPress={escolherImagem}
+          >
+            <Ionicons name="pencil" size={18} color="#FFF" />
+          </TouchableOpacity>
+        )}
+
+      </TouchableOpacity>
+
+      {/* FORM */}
       <View style={styles.form}>
 
         <Text style={styles.label}>Nome completo</Text>
@@ -165,11 +212,9 @@ export default function Perfil() {
         <View style={styles.inputContainer}>
           <Ionicons name="person" size={18} color="#777" />
           <TextInput
-            placeholder="Nome completo"
             style={styles.input}
             value={nome}
             onChangeText={setNome}
-            editable={!atualizando}
           />
         </View>
 
@@ -178,13 +223,11 @@ export default function Perfil() {
         <View style={styles.inputContainer}>
           <Ionicons name="mail" size={18} color="#777" />
           <TextInput
-            placeholder="Email"
             style={styles.input}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            editable={!atualizando}
           />
         </View>
 
@@ -229,6 +272,10 @@ export default function Perfil() {
   );
 }
 
+/* =======================
+   STYLES
+======================= */
+
 const styles = StyleSheet.create({
 
   container: {
@@ -238,19 +285,16 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
 
-  /* LOGOUT */
   logoutContainer: {
     position: "absolute",
     top: 45,
     right: 20,
-    zIndex: 10,
   },
 
   logo: {
     width: 380,
     height: 220,
     resizeMode: "contain",
-    marginBottom: 10,
   },
 
   title: {
@@ -266,6 +310,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 25,
+    position: "relative",
+  },
+
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 70,
+  },
+
+  editIcon: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    backgroundColor: "#0A67B3",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   form: {
@@ -315,7 +378,7 @@ const styles = StyleSheet.create({
   },
 
   buttonDisabled: {
-    backgroundColor: "#CCCCCC",
+    backgroundColor: "#CCC",
   },
 
   buttonText: {
