@@ -95,6 +95,8 @@ export default function Login() {
       router.replace("/(tabs)/home");
 
     } catch (err: any) {
+      console.error('Login error:', err);
+
       // erro de conexão (timeout / servidor off)
       if (err.isConnectionError) {
         setErrorMessage("Servidor indisponível no momento");
@@ -104,13 +106,14 @@ export default function Login() {
 
       // erro HTTP vindo da API (401, 400, etc)
       if (err.response) {
-        setErrorMessage(err.response.data?.message || "Credenciais inválidas");
+        const msg = err.response.data?.erro || err.response.data?.message || "Credenciais inválidas";
+        setErrorMessage(msg);
         setShowError(true);
         return;
       }
 
-      // erro genérico
-      setErrorMessage("Erro inesperado. Tente novamente.");
+      // erro genérico com fallback para mensagem do erro
+      setErrorMessage(err?.message || "Erro inesperado. Tente novamente.");
       setShowError(true);
     }
   }

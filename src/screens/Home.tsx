@@ -31,6 +31,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isTokenError, setIsTokenError] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [setorToDelete, setSetorToDelete] = useState<Setor | null>(null);
 
@@ -42,6 +43,7 @@ export default function Home() {
 
       if (!token) {
         setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
+        setIsTokenError(true);
         setShowError(true);
         return;
       }
@@ -74,6 +76,7 @@ export default function Home() {
         setErrorMessage(
           "Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK"
         );
+        setIsTokenError(true);
         setShowError(true);
         return;
       }
@@ -265,7 +268,13 @@ export default function Home() {
         description={errorMessage}
         buttonText="OK"
         color="red"
-        onClose={() => setShowError(false)}
+        onClose={() => {
+          setShowError(false);
+          if (isTokenError) {
+            setIsTokenError(false);
+            router.replace("/login");
+          }
+        }}
       />
 
       <Popup

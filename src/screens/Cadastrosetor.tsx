@@ -1,17 +1,17 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Image,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { api } from "../services/api";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Popup from "../components/Popup";
+import { api } from "../services/api";
 
 export default function CadastroSetorScreen() {
 
@@ -21,6 +21,7 @@ export default function CadastroSetorScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isTokenError, setIsTokenError] = useState(false);
   
 
 
@@ -44,6 +45,7 @@ export default function CadastroSetorScreen() {
         setErrorMessage(
           "Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK"
         );
+        setIsTokenError(true);
         setShowError(true);
         return;
       }
@@ -155,7 +157,13 @@ export default function CadastroSetorScreen() {
         description={errorMessage}
         buttonText="OK"
         color="red"
-        onClose={() => setShowError(false)}
+        onClose={() => {
+          setShowError(false);
+          if (isTokenError) {
+            setIsTokenError(false);
+            router.replace("/login");
+          }
+        }}
       />
 
       <Popup
