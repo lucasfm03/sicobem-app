@@ -1,15 +1,15 @@
+import { router } from "expo-router";
+import { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   Image,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Input from "../components/Input";
-import { router } from "expo-router";
 import Popup from "../components/Popup";
-import { useState } from "react";
 import { api } from "../services/api";
 
 /* ===================== */
@@ -70,6 +70,7 @@ export default function Register() {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   async function handleRegister() {
 
@@ -105,7 +106,10 @@ export default function Register() {
         senha,
       });
 
-      router.replace("/login");
+      // 🔥 FORÇA RE-RENDER DO POPUP
+      setTimeout(() => {
+        setShowSuccess(true);
+      }, 100);
 
     } catch (err: any) {
       setErrorMsg(
@@ -205,6 +209,17 @@ export default function Register() {
         buttonText="OK"
         color="red"
         onClose={() => setShowError(false)}
+      />
+
+      <Popup
+        visible={showSuccess}
+        title="Cadastrado feito com sucesso"
+        buttonText="Voltar para início"
+        color="pink"
+        onClose={() => {
+          setShowSuccess(false);
+          router.replace("/login");
+        }}
       />
 
     </View>

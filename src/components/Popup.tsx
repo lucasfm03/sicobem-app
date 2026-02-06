@@ -7,6 +7,10 @@ type Props = {
   buttonText: string;
   color: string;
   onClose: () => void;
+
+  // 🔹 NOVO (opcional)
+  secondaryButtonText?: string;
+  onSecondaryPress?: () => void;
 };
 
 export default function Popup({
@@ -16,30 +20,48 @@ export default function Popup({
   buttonText,
   color,
   onClose,
+  secondaryButtonText,
+  onSecondaryPress,
 }: Props) {
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <View style={styles.overlay}>
-
         <View style={styles.box}>
 
-          <Text style={[styles.icon, { color }]}>{color === "red" ? "✖" : "✔"}</Text>
+          <Text style={[styles.icon, { color }]}>
+            {color === "red" ? "✖" : "✔"}
+          </Text>
 
           <Text style={styles.title}>{title}</Text>
 
-          {description ? (
-          <Text style={styles.description}>{description}</Text>
-          ) : null}
+          {description && (
+            <Text style={styles.description}>{description}</Text>
+          )}
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: color }]}
-            onPress={onClose}
-          >
-            <Text style={styles.buttonText}>{buttonText}</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonsContainer}>
 
+            {/* BOTÃO SECUNDÁRIO (VOLTA/CANCELA) */}
+            {secondaryButtonText && onSecondaryPress && (
+              <TouchableOpacity
+                style={[styles.button, styles.secondaryButton]}
+                onPress={onSecondaryPress}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  {secondaryButtonText}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* BOTÃO PRINCIPAL */}
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: color }]}
+              onPress={onClose}
+            >
+              <Text style={styles.buttonText}>{buttonText}</Text>
+            </TouchableOpacity>
+
+          </View>
         </View>
-
       </View>
     </Modal>
   );
@@ -70,7 +92,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
 
   description: {
@@ -80,15 +102,31 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  buttonsContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
 
   button: {
-    paddingHorizontal: 30,
+    flex: 1,
     paddingVertical: 10,
     borderRadius: 20,
+    alignItems: "center",
   },
 
   buttonText: {
     color: "#fff",
+    fontWeight: "bold",
+  },
+
+  secondaryButton: {
+    backgroundColor: "#DDD",
+  },
+
+  secondaryButtonText: {
+    color: "#333",
     fontWeight: "bold",
   },
 });

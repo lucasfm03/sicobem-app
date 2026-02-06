@@ -264,6 +264,11 @@ export default function Home() {
         buttonText="Excluir"
         color="red"
         onClose={confirmarExclusao}
+        secondaryButtonText="Voltar"
+        onSecondaryPress={() => {
+          setShowConfirmDelete(false);
+          setSetorToDelete(null);
+        }}
       />
 
     </View>
