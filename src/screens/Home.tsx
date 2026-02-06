@@ -35,8 +35,6 @@ export default function Home() {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [setorToDelete, setSetorToDelete] = useState<Setor | null>(null);
 
-
-
   async function carregarSetores() {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -73,9 +71,7 @@ export default function Home() {
       const token = await AsyncStorage.getItem("token");
 
       if (!token || !setorToDelete) {
-        setErrorMessage(
-          "Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK"
-        );
+        setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
         setIsTokenError(true);
         setShowError(true);
         return;
@@ -90,7 +86,6 @@ export default function Home() {
       setShowConfirmDelete(false);
       setSetorToDelete(null);
 
-      // 🔄 Recarrega lista
       setLoading(true);
       carregarSetores();
 
@@ -109,8 +104,7 @@ export default function Home() {
       await AsyncStorage.removeItem("token");
       await AsyncStorage.removeItem("userId");
       router.replace("/login");
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
+    } catch {
       router.replace("/login");
     }
   }
@@ -137,7 +131,6 @@ export default function Home() {
         />
       </View>
 
-      {/* TÍTULO */}
       <Text style={styles.title}>Tela Inicial</Text>
 
       {/* CARD */}
@@ -172,12 +165,15 @@ export default function Home() {
               }
             >
 
+              {/* NOME DO SETOR */}
               <Text style={styles.itemText}>{item.nome}</Text>
 
+              {/* AÇÕES */}
               <View style={styles.actions}>
 
                 {/* EDITAR */}
                 <TouchableOpacity
+                  style={styles.actionButton}
                   onPress={() =>
                     router.push({
                       pathname: "/setores/renomear",
@@ -185,19 +181,20 @@ export default function Home() {
                     })
                   }
                 >
-                  <Ionicons name="pencil" size={20} color="#1E90FF" />
+                  <Ionicons name="pencil" size={22} color="#1E90FF" />
                 </TouchableOpacity>
 
                 {/* EXCLUIR */}
                 <TouchableOpacity
+                  style={[styles.actionButton, styles.deleteButton]}
                   onPress={() => {
                     setSetorToDelete(item);
                     setShowConfirmDelete(true);
-                  }}>
-                  <Ionicons name="trash" size={20} color="red" />
+                  }}
+                >
+                  <Ionicons name="trash" size={22} color="#FFF" />
                 </TouchableOpacity>
 
-                <Ionicons name="chevron-forward" size={22} color="#555" />
               </View>
 
             </TouchableOpacity>
@@ -214,7 +211,7 @@ export default function Home() {
         <Text style={styles.buttonText}>CADASTRAR</Text>
       </TouchableOpacity>
 
-      {/* ===== MODAL ===== */}
+      {/* MODAL */}
       {showModal && (
 
         <View style={styles.overlay}>
@@ -225,7 +222,6 @@ export default function Home() {
               O que deseja cadastrar?
             </Text>
 
-            {/* CADASTRAR SETOR */}
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => {
@@ -238,7 +234,6 @@ export default function Home() {
               </Text>
             </TouchableOpacity>
 
-            {/* CATEGORIA DE BEM */}
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => {
@@ -251,7 +246,6 @@ export default function Home() {
               </Text>
             </TouchableOpacity>
 
-            {/* CANCELAR */}
             <TouchableOpacity onPress={() => setShowModal(false)}>
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
@@ -354,29 +348,36 @@ const styles = StyleSheet.create({
 
   item: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 40,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
   },
 
   itemText: {
     fontSize: 16,
+    flex: 1,
   },
 
   actions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 50,
+    gap: 12,
   },
 
-  iconButton: {
+  actionButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: "#F2F2F2",
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  deleteButton: {
+    backgroundColor: "#E53935",
   },
 
   button: {
@@ -439,3 +440,4 @@ const styles = StyleSheet.create({
   },
 
 });
+

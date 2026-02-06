@@ -68,60 +68,73 @@ export default function CadastrarCategoriaBem() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView scrollEnabled={true}>
 
-      {/* HEADER */}
-      <View style={styles.header}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
 
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#000" />
-        </TouchableOpacity>
+        {/* CONTEÚDO PRINCIPAL */}
+        <View style={{ flex: 1 }}>
 
-        <Image
-          source={require("../../assets/images/logo.png")}
-          style={styles.logo}
-        />
+          {/* HEADER */}
+          <View style={styles.header}>
 
-      </View>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={26} color="#000" />
+            </TouchableOpacity>
 
-      {/* TÍTULO */}
-      <Text style={styles.title}>
-        CADASTRO DE CATEGORIA DE BEM
-      </Text>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={styles.logo}
+            />
 
-      {/* FORMULÁRIO */}
-      <View style={styles.form}>
+            <View style={{ width: 26 }} />
 
-        <Text style={styles.label}>
-          Adicione uma categoria de bem:
-          <Text style={styles.required}> *</Text>
-        </Text>
+          </View>
 
-        <TextInput
-          placeholder="Ex: Monitor, computador, mesa..."
-          style={styles.input}
-          value={categoria}
-          onChangeText={setCategoria}
-        />
+          {/* TÍTULO */}
+          <Text style={styles.title}>
+            CADASTRO DE CATEGORIA DE BEM
+          </Text>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleCadastrar}
-        >
-          <Text style={styles.buttonText}>CADASTRAR</Text>
-        </TouchableOpacity>
+          {/* FORMULÁRIO */}
+          <View style={styles.form}>
 
-      </View>
+            <Text style={styles.label}>
+              Adicione uma categoria de bem:
+              <Text style={styles.required}> *</Text>
+            </Text>
 
-      {/* RODAPÉ */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          © 2026 App Sicobem. Todos os direitos reservados
-        </Text>
-        <Text style={styles.footerText}>
-          Desenvolvido pelos capangas do Alan
-        </Text>
-      </View>
+            <TextInput
+              placeholder="Ex: Monitor, computador, mesa..."
+              style={styles.input}
+              value={categoria}
+              onChangeText={setCategoria}
+            />
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleCadastrar}
+            >
+              <Text style={styles.buttonText}>CADASTRAR</Text>
+            </TouchableOpacity>
+
+          </View>
+
+        </View>
+
+        {/* RODAPÉ FIXADO */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            © 2026 App Sicobem. Todos os direitos reservados
+          </Text>
+          <Text style={styles.footerText}>
+            Desenvolvido pelos capangas do Alan
+          </Text>
+        </View>
+
+      </ScrollView>
 
       <Popup
         visible={showPopup}
@@ -136,7 +149,6 @@ export default function CadastrarCategoriaBem() {
         }}
       />
 
-      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -146,21 +158,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F2F2F2",
-    paddingTop: 40,
   },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
+    marginTop: 40,
   },
 
+  /* LOGO MAIOR */
   logo: {
-    width: 280,
-    height: 120,
+    width: 380,
+    height: 220,
     resizeMode: "contain",
-    marginLeft: 10,
   },
 
   title: {
@@ -207,7 +219,6 @@ const styles = StyleSheet.create({
   },
 
   footer: {
-    marginTop: "auto",
     backgroundColor: "#62CB18",
     paddingVertical: 12,
     alignItems: "center",

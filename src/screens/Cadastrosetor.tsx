@@ -3,16 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-  
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
@@ -26,8 +25,6 @@ export default function CadastroSetorScreen() {
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isTokenError, setIsTokenError] = useState(false);
-  
-
 
   async function handleCadastrar() {
 
@@ -64,11 +61,9 @@ export default function CadastroSetorScreen() {
         }
       );
 
-      // 🔥 FORÇA RE-RENDER
       setTimeout(() => {
         setShowSuccess(true);
       }, 100);
-
 
     } catch (err: any) {
 
@@ -84,80 +79,92 @@ export default function CadastroSetorScreen() {
     }
   }
 
-
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView scrollEnabled={true}>
 
-      {/* TOPO */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#000" />
-        </TouchableOpacity>
+      {/* Scroll ocupa a tela toda */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
 
-        <Image
-          source={require("../../assets/images/logo.png")}
-          style={styles.logo}
-        />
+        {/* CONTEÚDO PRINCIPAL */}
+        <View style={{ flex: 1 }}>
 
-        <View style={{ width: 26 }} />
-      </View>
+          {/* TOPO */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={26} color="#000" />
+            </TouchableOpacity>
 
-      <Text style={styles.title}>CADASTRO DE SETOR</Text>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={styles.logo}
+            />
 
-      {/* FORM */}
-      <View style={styles.form}>
+            <View style={{ width: 26 }} />
+          </View>
 
-        <Text style={styles.label}>
-          Nome do setor <Text style={styles.required}>*</Text>
-        </Text>
+          <Text style={styles.title}>CADASTRO DE SETOR</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Recursos Humanos"
-          value={nome}
-          onChangeText={setNome}
-        />
+          {/* FORM */}
+          <View style={styles.form}>
 
-        <Text style={styles.label}>
-          Abreviação <Text style={styles.required}>*</Text>
-        </Text>
+            <Text style={styles.label}>
+              Nome do setor <Text style={styles.required}>*</Text>
+            </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: RH"
-          value={abreviacao}
-          onChangeText={setAbreviacao}
-          maxLength={10}
-          autoCapitalize="characters"
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: Recursos Humanos"
+              value={nome}
+              onChangeText={setNome}
+            />
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            loading && { opacity: 0.7 },
-          ]}
-          onPress={handleCadastrar}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "SALVANDO..." : "CADASTRAR"}
+            <Text style={styles.label}>
+              Abreviação <Text style={styles.required}>*</Text>
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: RH"
+              value={abreviacao}
+              onChangeText={setAbreviacao}
+              maxLength={10}
+              autoCapitalize="characters"
+            />
+
+            <TouchableOpacity
+              style={[
+                styles.button,
+                loading && { opacity: 0.7 },
+              ]}
+              onPress={handleCadastrar}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? "SALVANDO..." : "CADASTRAR"}
+              </Text>
+            </TouchableOpacity>
+
+          </View>
+
+        </View>
+
+        {/* RODAPÉ FIXADO */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>© 2026 App Sicobem</Text>
+          <Text style={styles.footerText}>
+            Desenvolvido pelos capangas do Alan
           </Text>
-        </TouchableOpacity>
+        </View>
 
-      </View>
+      </ScrollView>
 
-      {/* RODAPÉ */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2026 App Sicobem</Text>
-        <Text style={styles.footerText}>
-          Desenvolvido pelos capangas do Alan
-        </Text>
-      </View>
+      {/* POPUPS */}
 
       <Popup
         visible={showError}
@@ -185,11 +192,15 @@ export default function CadastroSetorScreen() {
         }}
       />
 
-      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+/* =======================
+   STYLES
+======================= */
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#F4F4F4",
@@ -203,9 +214,10 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
 
+  /* LOGO MAIOR */
   logo: {
-    width: 220,
-    height: 120,
+    width: 380,
+    height: 220,
     resizeMode: "contain",
   },
 
@@ -254,7 +266,6 @@ const styles = StyleSheet.create({
   },
 
   footer: {
-    marginTop: "auto",
     backgroundColor: "#62CB18",
     padding: 12,
     alignItems: "center",
@@ -264,4 +275,6 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 12,
   },
+
 });
+
