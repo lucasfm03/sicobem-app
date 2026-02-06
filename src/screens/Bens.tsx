@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { api } from "../services/api";
 
@@ -17,10 +17,10 @@ export default function Bens() {
   const [search, setSearch] = useState("");
 
   const bens = [
-    { nome: "Notebook Dell", tombo: "12345", status: "Ativo" },
-    { nome: "Impressora HP", tombo: "22334", status: "Ativo" },
-    { nome: "Mesa Escritório", tombo: "99887", status: "Ativo" },
-    { nome: "Monitor LG", tombo: "55443", status: "Inservível" },
+    { nome: "Notebook Dell", tombo: "12345", status: "Ativo", categoria: "Computadores", setor: "TI" },
+    { nome: "Impressora HP", tombo: "22334", status: "Ativo", categoria: "Periféricos", setor: "Administração" },
+    { nome: "Mesa Escritório", tombo: "99887", status: "Ativo", categoria: "Móveis", setor: "Recursos Humanos" },
+    { nome: "Monitor LG", tombo: "55443", status: "Inservível", categoria: "Monitores", setor: "Atendimento" },
   ];
 
   return (
@@ -88,7 +88,20 @@ export default function Bens() {
           data={bens}
           keyExtractor={(item) => item.tombo}
           renderItem={({ item }) => (
-            <View style={styles.row}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() =>
+                router.push({
+                  pathname: "/bem-detalhes",
+                  params: {
+                    tombo: item.tombo,
+                    descricao: item.nome,
+                    categoria: item.categoria || "Sem categoria",
+                    setor: item.setor || "Sem setor",
+                  },
+                })
+              }
+            >
 
               <Text style={[styles.cell, styles.left]}>
                 {item.nome}
@@ -110,7 +123,7 @@ export default function Bens() {
                 {item.status}
               </Text>
 
-            </View>
+            </TouchableOpacity>
           )}
         />
 

@@ -1,0 +1,291 @@
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+
+export default function RelatorioAquisicao() {
+  const [selecionadas, setSelecionadas] = useState<string[]>([]);
+  const [formato, setFormato] = useState<"pdf" | "excel" | null>(null);
+
+  const aquisicoes = [
+    { id: "1", nome: "Compra" },
+    { id: "2", nome: "Doação" },
+    { id: "3", nome: "Permuta" },
+    { id: "4", nome: "Compra Fundo Rotativo" },
+    { id: "5", nome: "Bem Catalogado" },
+    { id: "6", nome: "Convênio" },
+    { id: "7", nome: "Recebido como Empréstimo" },
+  ];
+
+  const toggleAquisicao = (id: string) => {
+    setSelecionadas((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleLimpar = () => {
+    setSelecionadas([]);
+  };
+
+  const handleGerar = () => {
+    alert(`Relatório gerado para ${selecionadas.length} aquisição(ções)`);
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* SETA VOLTAR */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <Ionicons name="arrow-back" size={26} color="#333" />
+      </TouchableOpacity>
+
+      {/* LOGO */}
+      <Image
+        source={require("../../assets/images/logo.png")}
+        style={styles.logo}
+      />
+
+      {/* TÍTULO */}
+      <Text style={styles.title}>AQUISIÇÃO</Text>
+
+      {/* CARD FORMATO */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>SELECIONE A OPÇÃO</Text>
+
+        <View style={styles.radioGroup}>
+          {/* PDF */}
+          <TouchableOpacity
+            style={styles.radioItem}
+            onPress={() => setFormato("pdf")}
+          >
+            <Ionicons name="document-text" size={22} color="#2E6BE6" />
+            <Text style={styles.radioText}>PDF</Text>
+            <View
+              style={[
+                styles.radioCircle,
+                formato === "pdf" && styles.radioSelected,
+              ]}
+            />
+          </TouchableOpacity>
+
+          {/* EXCEL */}
+          <TouchableOpacity
+            style={styles.radioItem}
+            onPress={() => setFormato("excel")}
+          >
+            <Ionicons name="grid" size={22} color="#2E6BE6" />
+            <Text style={styles.radioText}>EXCEL</Text>
+            <View
+              style={[
+                styles.radioCircle,
+                formato === "excel" && styles.radioSelected,
+              ]}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* CARD FILTROS */}
+      <View style={[styles.card, styles.filterCard]}>
+        <View style={styles.aquisicaoContainer}>
+          <Ionicons name="cash" size={20} color="#62CB18" />
+          <Text style={styles.filterTitle}>Aquisição</Text>
+          <Ionicons name="chevron-back" size={20} color="#999" />
+        </View>
+
+        {aquisicoes.map((aq) => (
+          <View key={aq.id} style={styles.checkboxItem}>
+            <TouchableOpacity
+              style={styles.checkboxWrapper}
+              onPress={() => toggleAquisicao(aq.id)}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  selecionadas.includes(aq.id) && styles.checkboxChecked,
+                ]}
+              >
+                {selecionadas.includes(aq.id) && (
+                  <Ionicons name="checkmark" size={16} color="#FFF" />
+                )}
+              </View>
+              <Text style={styles.checkboxText}>{aq.nome}</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+
+      {/* BOTÕES */}
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.clearBtn} onPress={handleLimpar}>
+          <Text style={styles.clearText}>LIMPAR FILTROS</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.generateBtn} onPress={handleGerar}>
+          <Text style={styles.generateText}>GERAR RELATÓRIO</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F4F4F4",
+    padding: 20,
+  },
+
+  backButton: {
+    marginBottom: 15,
+  },
+
+  logo: {
+    width: 380,
+    height: 220,
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 15,
+  },
+
+  card: {
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 15,
+  },
+
+  filterCard: {
+    maxHeight: "45%",
+    overflow: "hidden",
+  },
+
+  cardTitle: {
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 14,
+  },
+
+  radioGroup: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 40,
+  },
+
+  radioItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  radioCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: "#2E6BE6",
+  },
+
+  radioSelected: {
+    backgroundColor: "#2E6BE6",
+  },
+
+  radioText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  aquisicaoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+    marginBottom: 10,
+  },
+
+  filterTitle: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
+
+  checkboxItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+  },
+
+  checkboxWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: "#CCC",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  checkboxChecked: {
+    backgroundColor: "#62CB18",
+    borderColor: "#62CB18",
+  },
+
+  checkboxText: {
+    fontSize: 14,
+    color: "#333",
+  },
+
+  actions: {
+    marginTop: "auto",
+  },
+
+  clearBtn: {
+    backgroundColor: "#DDD",
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+
+  clearText: {
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "#333",
+  },
+
+  generateBtn: {
+    backgroundColor: "#2E6BE6",
+    padding: 14,
+    borderRadius: 8,
+  },
+
+  generateText: {
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "#FFF",
+  },
+});

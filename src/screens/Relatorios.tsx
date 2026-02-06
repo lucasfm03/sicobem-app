@@ -1,14 +1,14 @@
 import {
-  View,
-  Text,
+  Image,
   StyleSheet,
+  Text,
   TouchableOpacity,
-  Image
+  View
 } from "react-native";
 
-import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 
 export default function RelatoriosScreen() {
 
@@ -99,9 +99,15 @@ export default function RelatoriosScreen() {
 
         {renderItem("Setor", "location", () => 
           router.push("/relatorios/relatoriosetor"))}
-        {renderItem("Organização", "business")}
-        {renderItem("Situação", "settings")}
-        {renderItem("Aquisição", "cash")}
+        {renderItem("Organização", "business", () =>
+          router.push("/relatorios/relatorioorganizacao")
+        )}
+        {renderItem("Situação", "settings", () =>
+          router.push("/relatorios/relatoriosituacao")
+        )}
+        {renderItem("Aquisição", "cash", () =>
+          router.push("/relatorios/relatorioaquisicao")
+        )}
 
       </View>
 
