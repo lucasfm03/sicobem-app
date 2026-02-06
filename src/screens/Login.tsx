@@ -1,17 +1,17 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   Image,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import Input from "../components/Input";
-import { router } from "expo-router";
-import Popup from "../components/Popup";
-import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useState } from "react";
+import Input from "../components/Input";
+import Popup from "../components/Popup";
 import { api } from "../services/api";
 
 export default function Login() {
@@ -81,10 +81,16 @@ export default function Login() {
         senha,
       });
 
-      const { token, usuario } = response.data;
+      const { token, usuarioId } = response.data;
+
+      if (!token || !usuarioId) {
+        setErrorMessage("Dados de login incompletos. Tente novamente.");
+        setShowError(true);
+        return;
+      }
 
       await AsyncStorage.setItem("token", token);
-      await AsyncStorage.setItem("usuario", JSON.stringify(usuario));
+      await AsyncStorage.setItem("userId", String(usuarioId));
 
       router.replace("/(tabs)/home");
 
