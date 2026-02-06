@@ -1,15 +1,17 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
-  Image
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 
 export default function RelatorioSetor() {
 
@@ -42,7 +44,11 @@ export default function RelatorioSetor() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <View style={styles.container}>
 
       {/* LOGOUT */}
       <View style={styles.logoutContainer}>
@@ -117,7 +123,7 @@ export default function RelatorioSetor() {
           <Text style={styles.cardTitle}>Setor</Text>
         </View>
 
-        <ScrollView>
+        <ScrollView scrollEnabled={true}>
 
           {setores.map(setor => (
 
@@ -164,6 +170,8 @@ export default function RelatorioSetor() {
       </View>
 
     </View>
+
+    </KeyboardAvoidingView>
   );
 }
 

@@ -3,10 +3,13 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
     Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 export default function RelatorioOrganizacao() {
@@ -37,7 +40,11 @@ export default function RelatorioOrganizacao() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
       {/* SETA VOLTAR */}
       <TouchableOpacity
         style={styles.backButton}
@@ -100,26 +107,28 @@ export default function RelatorioOrganizacao() {
           <Ionicons name="chevron-back" size={20} color="#999" />
         </View>
 
-        {organizacoes.map((org) => (
-          <View key={org.id} style={styles.checkboxItem}>
-            <TouchableOpacity
-              style={styles.checkboxWrapper}
-              onPress={() => toggleOrganizacao(org.id)}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  selecionadas.includes(org.id) && styles.checkboxChecked,
-                ]}
+        <ScrollView style={styles.optionsScroll}>
+          {organizacoes.map((org) => (
+            <View key={org.id} style={styles.checkboxItem}>
+              <TouchableOpacity
+                style={styles.checkboxWrapper}
+                onPress={() => toggleOrganizacao(org.id)}
               >
-                {selecionadas.includes(org.id) && (
-                  <Ionicons name="checkmark" size={16} color="#FFF" />
-                )}
-              </View>
-              <Text style={styles.checkboxText}>{org.nome}</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+                <View
+                  style={[
+                    styles.checkbox,
+                    selecionadas.includes(org.id) && styles.checkboxChecked,
+                  ]}
+                >
+                  {selecionadas.includes(org.id) && (
+                    <Ionicons name="checkmark" size={16} color="#FFF" />
+                  )}
+                </View>
+                <Text style={styles.checkboxText}>{org.nome}</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
       </View>
 
       {/* BOTÕES */}
@@ -138,7 +147,8 @@ export default function RelatorioOrganizacao() {
           <Text style={styles.generateText}>GERAR RELATÓRIO</Text>
         </TouchableOpacity>
       </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -177,6 +187,10 @@ const styles = StyleSheet.create({
 
   filterCard: {
     maxHeight: "45%",
+  },
+
+  optionsScroll: {
+    maxHeight: 250,
     overflow: "hidden",
   },
 

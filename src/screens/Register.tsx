@@ -1,12 +1,14 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Input from "../components/Input";
 import Popup from "../components/Popup";
@@ -120,9 +122,11 @@ export default function Register() {
   }
 
   return (
-    <View style={styles.container}>
-
-      <ScrollView contentContainerStyle={styles.content}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
 
         {/* TOPO */}
         <View style={styles.header}>
@@ -222,7 +226,7 @@ export default function Register() {
         }}
       />
 
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

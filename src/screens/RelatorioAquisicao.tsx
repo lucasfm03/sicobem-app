@@ -1,13 +1,16 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from "react-native";
-import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
+import {
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 export default function RelatorioAquisicao() {
   const [selecionadas, setSelecionadas] = useState<string[]>([]);
@@ -38,7 +41,11 @@ export default function RelatorioAquisicao() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
       {/* SETA VOLTAR */}
       <TouchableOpacity
         style={styles.backButton}
@@ -101,26 +108,28 @@ export default function RelatorioAquisicao() {
           <Ionicons name="chevron-back" size={20} color="#999" />
         </View>
 
-        {aquisicoes.map((aq) => (
-          <View key={aq.id} style={styles.checkboxItem}>
-            <TouchableOpacity
-              style={styles.checkboxWrapper}
-              onPress={() => toggleAquisicao(aq.id)}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  selecionadas.includes(aq.id) && styles.checkboxChecked,
-                ]}
+        <ScrollView style={styles.optionsScroll}>
+          {aquisicoes.map((aq) => (
+            <View key={aq.id} style={styles.checkboxItem}>
+              <TouchableOpacity
+                style={styles.checkboxWrapper}
+                onPress={() => toggleAquisicao(aq.id)}
               >
-                {selecionadas.includes(aq.id) && (
-                  <Ionicons name="checkmark" size={16} color="#FFF" />
-                )}
-              </View>
-              <Text style={styles.checkboxText}>{aq.nome}</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+                <View
+                  style={[
+                    styles.checkbox,
+                    selecionadas.includes(aq.id) && styles.checkboxChecked,
+                  ]}
+                >
+                  {selecionadas.includes(aq.id) && (
+                    <Ionicons name="checkmark" size={16} color="#FFF" />
+                  )}
+                </View>
+                <Text style={styles.checkboxText}>{aq.nome}</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
       </View>
 
       {/* BOTÕES */}
@@ -133,7 +142,8 @@ export default function RelatorioAquisicao() {
           <Text style={styles.generateText}>GERAR RELATÓRIO</Text>
         </TouchableOpacity>
       </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -172,6 +182,10 @@ const styles = StyleSheet.create({
 
   filterCard: {
     maxHeight: "45%",
+  },
+
+  optionsScroll: {
+    maxHeight: 250,
     overflow: "hidden",
   },
 

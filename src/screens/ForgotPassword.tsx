@@ -1,20 +1,23 @@
+import { router } from "expo-router";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ScrollView,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Input from "../components/Input";
-import { router } from "expo-router";
 
 export default function ForgotPassword() {
   return (
-    <View style={styles.container}>
-
-      {/* CONTEÚDO */}
-      <ScrollView contentContainerStyle={styles.content}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
 
         {/* TOPO */}
         <View style={styles.header}>
@@ -58,7 +61,7 @@ export default function ForgotPassword() {
         </Text>
       </View>
 
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

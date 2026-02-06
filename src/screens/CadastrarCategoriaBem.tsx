@@ -1,31 +1,74 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Image,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Popup from "../components/Popup";
+import { api } from "../services/api";
 
 export default function CadastrarCategoriaBem() {
 
   const [categoria, setCategoria] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupColor, setPopupColor] = useState<"red" | "green">("green");
 
-  function handleCadastrar() {
+  async function handleCadastrar() {
     if (!categoria.trim()) {
-      alert("Informe a categoria de bem.");
+      setPopupMessage("Informe a categoria de bem.");
+      setPopupColor("red");
+      setShowPopup(true);
       return;
     }
 
-    alert("Categoria cadastrada com sucesso!");
-    router.back();
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      if (!token) {
+        setPopupMessage("Erro ao acessar o servidor");
+        setPopupColor("red");
+        setShowPopup(true);
+        return;
+      }
+
+      await api.post(
+        "/categorias",
+        { nome: categoria },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setPopupMessage("Categoria cadastrada com sucesso!");
+      setPopupColor("green");
+      setShowPopup(true);
+    } catch (err: any) {
+      setPopupMessage(
+        err?.response?.data?.erro || "Erro ao cadastrar categoria"
+      );
+      setPopupColor("red");
+      setShowPopup(true);
+    }
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
 
       {/* HEADER */}
       <View style={styles.header}>
@@ -80,7 +123,21 @@ export default function CadastrarCategoriaBem() {
         </Text>
       </View>
 
-    </View>
+      <Popup
+        visible={showPopup}
+        title={popupMessage}
+        buttonText={popupColor === "green" ? "VOLTAR" : "FECHAR"}
+        color={popupColor}
+        onClose={() => {
+          setShowPopup(false);
+          if (popupColor === "green") {
+            router.back();
+          }
+        }}
+      />
+
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

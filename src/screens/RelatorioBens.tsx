@@ -1,16 +1,17 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image
-  
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
-import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 
 export default function RelatorioBens() {
 
@@ -48,7 +49,11 @@ export default function RelatorioBens() {
   }
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <View style={styles.container}>
 
     {/* LOGO */}
     <Image
@@ -128,7 +133,7 @@ export default function RelatorioBens() {
       {/* FILTROS */}
       <View style={styles.card}>
 
-        <ScrollView>
+        <ScrollView scrollEnabled={true}>
 
           <TouchableOpacity
             style={styles.checkbox}
@@ -211,6 +216,8 @@ export default function RelatorioBens() {
       </View>
 
     </View>
+
+    </KeyboardAvoidingView>
   );
 }
 

@@ -1,9 +1,12 @@
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -15,7 +18,11 @@ export default function RelatoriosScreen() {
   const [formato, setFormato] = useState<"pdf" | "excel" | null>(null);
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
 
       {/* BOTÃO SAIR */}
       <View style={styles.logoutContainer}>
@@ -124,7 +131,8 @@ export default function RelatoriosScreen() {
 
       </View>
 
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

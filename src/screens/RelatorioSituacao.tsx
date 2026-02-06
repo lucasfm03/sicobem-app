@@ -3,10 +3,13 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
     Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 export default function RelatorioSituacao() {
@@ -34,7 +37,11 @@ export default function RelatorioSituacao() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView scrollEnabled={true}>
       {/* SETA VOLTAR */}
       <TouchableOpacity
         style={styles.backButton}
@@ -129,7 +136,8 @@ export default function RelatorioSituacao() {
           <Text style={styles.generateText}>GERAR RELATÓRIO</Text>
         </TouchableOpacity>
       </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

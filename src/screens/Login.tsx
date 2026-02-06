@@ -1,17 +1,19 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import Input from "../components/Input";
-import { router } from "expo-router";
-import Popup from "../components/Popup";
-import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useState } from "react";
+import Input from "../components/Input";
+import Popup from "../components/Popup";
 import { api } from "../services/api";
 
 export default function Login() {
@@ -110,7 +112,11 @@ export default function Login() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={styles.container} scrollEnabled={true}>
 
       {/* LOGO */}
       <View style={styles.logoContainer}>
@@ -186,7 +192,8 @@ export default function Login() {
       />
 
 
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
