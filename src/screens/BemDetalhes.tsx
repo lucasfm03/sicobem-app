@@ -3,17 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
@@ -46,6 +44,11 @@ export default function BemDetalhes() {
   const [observacoes, setObservacoes] = useState("");
   const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
   const [categoriaNome, setCategoriaNome] = useState("");
+  const [setorNome, setSetorNome] = useState("");
+  const [tombo, setTombo] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [valorAquisicao, setValorAquisicao] = useState("");
+  const [usuarioResponsavel, setUsuarioResponsavel] = useState("");
   
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -74,6 +77,10 @@ export default function BemDetalhes() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBem(resBem.data);
+      setTombo(resBem.data.tombo || "");
+      setDescricao(resBem.data.descricao || "");
+      setValorAquisicao(resBem.data.valor_aquisicao?.toString() || "");
+      setUsuarioResponsavel(resBem.data.id_usuario_responsavel?.toString() || "");
       setSituacao(resBem.data.situacao || "Ativo");
 
       // Buscar categorias
@@ -88,6 +95,17 @@ export default function BemDetalhes() {
       );
       if (categoriaSelecionada) {
         setCategoriaNome(categoriaSelecionada.nome);
+      }
+
+      // Buscar setores para encontrar nome do setor atual
+      const resSetores = await api.get("/setores", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const setorAtual = resSetores.data.find(
+        (set: any) => set.id_setor === resBem.data.id_setor_atual
+      );
+      if (setorAtual) {
+        setSetorNome(setorAtual.nome);
       }
     } catch (err: any) {
       setErrorMessage(
@@ -113,9 +131,16 @@ export default function BemDetalhes() {
         return;
       }
 
+      const categoriaId = categorias.find(cat => cat.nome === categoriaNome)?.id_categoria || bem.id_categoria;
+      
       await api.put(`/bens/${bem.id_bem}`, {
+        tombo,
+        descricao,
         situacao,
         id_setor_atual: bem.id_setor_atual,
+        id_categoria: categoriaId,
+        valor_aquisicao: parseFloat(valorAquisicao) || bem.valor_aquisicao,
+        id_usuario_responsavel: parseInt(usuarioResponsavel) || bem.id_usuario_responsavel,
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -140,11 +165,7 @@ export default function BemDetalhes() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView scrollEnabled={true}>
+    <ScrollView style={styles.container}>
 
       {/* TOPO */}
       <View style={styles.topBar}>
@@ -170,16 +191,20 @@ export default function BemDetalhes() {
         <Text style={styles.label}>Tombo</Text>
         <TextInput
           style={styles.input}
-          value={bem?.tombo || ""}
-          editable={false}
+          value={tombo}
+          onChangeText={setTombo}
+          placeholder="Digite o tombo"
+          placeholderTextColor="#CCC"
         />
 
         {/* DESCRIÇÃO */}
         <Text style={styles.label}>Descrição</Text>
         <TextInput
           style={styles.input}
-          value={bem?.descricao || ""}
-          editable={false}
+          value={descricao}
+          onChangeText={setDescricao}
+          placeholder="Digite a descrição"
+          placeholderTextColor="#CCC"
         />
 
         {/* CATEGORIA */}
@@ -198,8 +223,10 @@ export default function BemDetalhes() {
         <Text style={styles.label}>Valor de Aquisição</Text>
         <TextInput
           style={styles.input}
-          value={bem?.valor_aquisicao?.toString() || ""}
-          editable={false}
+          value={valorAquisicao}
+          onChangeText={setValorAquisicao}
+          placeholder="Digite o valor"
+          placeholderTextColor="#CCC"
           keyboardType="decimal-pad"
         />
 
@@ -207,17 +234,20 @@ export default function BemDetalhes() {
         <Text style={styles.label}>Setor Atual</Text>
         <TextInput
           style={styles.input}
-          value={String(bem?.id_setor_atual || "")}
+          value={setorNome}
           editable={false}
-          keyboardType="numeric"
+          placeholder="Sem setor atribuído"
+          placeholderTextColor="#CCC"
         />
 
         {/* USUÁRIO RESPONSÁVEL */}
         <Text style={styles.label}>Usuário Responsável</Text>
         <TextInput
           style={styles.input}
-          value={String(bem?.id_usuario_responsavel || "")}
-          editable={false}
+          value={usuarioResponsavel}
+          onChangeText={setUsuarioResponsavel}
+          placeholder="ID do usuário"
+          placeholderTextColor="#CCC"
           keyboardType="numeric"
         />
 
@@ -352,7 +382,6 @@ export default function BemDetalhes() {
       />
 
       </ScrollView>
-    </KeyboardAvoidingView>
   );
 }
 

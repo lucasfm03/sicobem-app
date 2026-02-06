@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     FlatList,
     Image,
@@ -37,6 +38,11 @@ export default function Bens() {
     carregarBens();
   }, [idSetor]);
 
+  useFocusEffect(
+    useCallback(() => {
+      carregarBens();
+    }, [idSetor])
+  );
   async function carregarBens() {
     try {
       const token = await AsyncStorage.getItem("token");
