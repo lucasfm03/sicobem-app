@@ -45,6 +45,8 @@ export default function CadastrarBem() {
 
   const [setores, setSetores] = useState<Setor[]>([]);
   const [selectedSetorId, setSelectedSetorId] = useState<number | null>(null);
+  const [selectedCategoriaId, setSelectedCategoriaId] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +117,15 @@ export default function CadastrarBem() {
     }
   };
 
-  function handleCadastrar() {
+  function parseValorToNumber(valorStr: string) {
+    if (!valorStr) return 0;
+    // remove dots (thousands) and replace comma by dot
+    const normalized = valorStr.replace(/\./g, "").replace(/,/g, ".");
+    const n = parseFloat(normalized);
+    return isNaN(n) ? 0 : n;
+  }
+
+  async function handleCadastrar() {
     if (!tombo || !origem || !categoria || !setor || !valor) {
       setPopupMessage("Preencha todos os campos obrigatórios.");
       setPopupColor("red");
@@ -123,23 +133,58 @@ export default function CadastrarBem() {
       return;
     }
 
-    // Aqui você pode adicionar a lógica de salvar em AsyncStorage, API, etc.
-    const bemData = {
-      tombo,
-      origem,
-      categoria,
-      setor,
-      valor,
-      usuario,
-      descricao,
-      situacao,
-      dataCadastro: new Date().toLocaleDateString("pt-BR"),
-    };
+    setIsSubmitting(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        setPopupMessage("Erro de autenticação.");
+        setPopupColor("red");
+        setShowPopup(true);
+        return;
+      }
 
-    console.log("Bem cadastrado:", bemData);
-    setPopupMessage("Bem cadastrado com sucesso!");
-    setPopupColor("green");
-    setShowPopup(true);
+      // resolve ids se necessário
+      let id_categoria = selectedCategoriaId;
+      if (!id_categoria) {
+        const found = categorias.find((c) => c.nome === categoria);
+        id_categoria = found ? found.id_categoria : null;
+      }
+
+      let id_setor_atual = selectedSetorId;
+      if (!id_setor_atual) {
+        const found = setores.find((s) => s.nome === setor);
+        id_setor_atual = found ? found.id_setor : null;
+      }
+
+      const payload: any = {
+        tombo,
+        origem,
+        id_categoria,
+        id_setor_atual,
+        valor_aquisicao: parseValorToNumber(valor),
+        usuario,
+        descricao,
+        situacao,
+      };
+
+      await api.post(
+        "/bens",
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setPopupMessage("Bem cadastrado com sucesso!");
+      setPopupColor("green");
+      setShowPopup(true);
+    } catch (err: any) {
+      setPopupMessage(err?.response?.data?.erro || "Erro ao cadastrar bem");
+      setPopupColor("red");
+      setShowPopup(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
