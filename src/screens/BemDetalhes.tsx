@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Popup from "../components/Popup";
 import { api } from "../services/api";
 
 interface Bem {
@@ -40,7 +42,8 @@ export default function BemDetalhes() {
   
   const [situacao, setSituacao] = useState("Ativo");
   const [observacoes, setObservacoes] = useState("");
-  const [categoriaSelected, setCategoriaSelected] = useState("");
+  const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
+  const [categoriaNome, setCategoriaNome] = useState("");
   
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -70,16 +73,23 @@ export default function BemDetalhes() {
       });
       setBem(resBem.data);
       setSituacao(resBem.data.situacao || "Ativo");
-      setCategoriaSelected(String(resBem.data.id_categoria));
 
       // Buscar categorias
       const resCategorias = await api.get("/categorias", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategorias(resCategorias.data);
+      
+      // Encontrar nome da categoria
+      const categoriaSelecionada = resCategorias.data.find(
+        (cat: Categoria) => cat.id_categoria === resBem.data.id_categoria
+      );
+      if (categoriaSelecionada) {
+        setCategoriaNome(categoriaSelecionada.nome);
+      }
     } catch (err: any) {
       setErrorMessage(
-        err?.response?.data?.erro || "Erro ao carregar dados do bem"
+        err?.response?.data?.erro || "Erro ao carregar dados do bem" + err.message
       );
       setShowError(true);
     } finally {
@@ -168,18 +178,15 @@ export default function BemDetalhes() {
 
         {/* CATEGORIA */}
         <Text style={styles.label}>Categoria</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={categoriaSelected}
-            onValueChange={(itemValue) => setCategoriaSelected(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item label="Selecionar categoria..." value="" />
-            {categorias.map((cat) => (
-              <Picker.Item key={cat.id_categoria} label={cat.nome} value={String(cat.id_categoria)} />
-            ))}
-          </Picker>
-        </View>
+        <TouchableOpacity
+          style={styles.categoriaButton}
+          onPress={() => setModalCategoriaVisible(true)}
+        >
+          <Text style={styles.categoriaBtnText}>
+            {categoriaNome || "Selecionar categoria..."}
+          </Text>
+          <Ionicons name="chevron-down" size={20} color="#333" />
+        </TouchableOpacity>
 
         {/* VALOR DE AQUISIÇÃO */}
         <Text style={styles.label}>Valor de Aquisição</Text>
@@ -274,6 +281,43 @@ export default function BemDetalhes() {
 
       </View>
 
+      {/* MODAL CATEGORIA */}
+      <Modal
+        transparent
+        visible={modalCategoriaVisible}
+        onRequestClose={() => setModalCategoriaVisible(false)}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Selecione a Categoria</Text>
+              <TouchableOpacity onPress={() => setModalCategoriaVisible(false)}>
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalContent}>
+              {categorias.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id_categoria}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    setCategoriaNome(cat.nome);
+                    setModalCategoriaVisible(false);
+                  }}
+                >
+                  <View style={styles.optionCheck}>
+                    {categoriaNome === cat.nome && (
+                      <Ionicons name="checkmark" size={18} color="#62CB18" />
+                    )}
+                  </View>
+                  <Text style={styles.optionText}>{cat.nome}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       <Popup
         visible={showError}
         title="Erro"
@@ -358,16 +402,75 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  pickerContainer: {
+  categoriaButton: {
     backgroundColor: "#F5F5F5",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#CCC",
+    padding: 12,
     marginTop: 6,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
-  picker: {
-    height: 50,
+  categoriaBtnText: {
+    color: "#333",
+    fontSize: 13,
+  },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+
+  modalContainer: {
+    backgroundColor: "#FFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "70%",
+  },
+
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+
+  modalContent: {
+    paddingVertical: 10,
+  },
+
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+
+  optionCheck: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  optionText: {
+    fontSize: 14,
+    color: "#333",
   },
 
   statusContainer: {
