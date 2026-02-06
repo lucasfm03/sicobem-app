@@ -201,7 +201,10 @@ export default function Bens() {
 
           <TouchableOpacity
             style={styles.moreButton}
-            onPress={() => router.push("/cadastrar-bem")}
+            onPress={() => router.push({
+              pathname: "/cadastrar-bem",
+              params: { idSetor }
+            })}
           >
             <Text style={styles.moreText}>CADASTRAR BEM</Text>
           </TouchableOpacity>

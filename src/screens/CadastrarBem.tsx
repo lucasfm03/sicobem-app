@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -27,6 +27,9 @@ type Categoria = {
 };
 
 export default function CadastrarBem() {
+
+  const { idSetor: paramIdSetor } = useLocalSearchParams();
+  const idSetor = Array.isArray(paramIdSetor) ? paramIdSetor[0] : paramIdSetor;
 
   const [tombo, setTombo] = useState("");
   const [origem, setOrigem] = useState("");
@@ -81,6 +84,17 @@ export default function CadastrarBem() {
 
       setSetores(setoresResponse.data);
       setCategorias(categoriasResponse.data);
+
+      // Se veio um idSetor via parâmetro, encontrar e setar
+      if (idSetor) {
+        const setorEncontrado = setoresResponse.data.find(
+          (s: Setor) => s.id_setor === Number(idSetor)
+        );
+        if (setorEncontrado) {
+          setSetor(setorEncontrado.nome);
+          setSelectedSetorId(setorEncontrado.id_setor);
+        }
+      }
     } catch (err: any) {
       setPopupMessage("Erro ao carregar dados");
       setPopupColor("red");
@@ -126,7 +140,7 @@ export default function CadastrarBem() {
   }
 
   async function handleCadastrar() {
-    if (!tombo || !origem || !categoria || !setor || !valor) {
+    if (!tombo || !categoria || !setor || !valor) {
       setPopupMessage("Preencha todos os campos obrigatórios.");
       setPopupColor("red");
       setShowPopup(true);
@@ -136,6 +150,8 @@ export default function CadastrarBem() {
     setIsSubmitting(true);
     try {
       const token = await AsyncStorage.getItem("token");
+      const userId = await AsyncStorage.getItem("userId");
+      
       if (!token) {
         setPopupMessage("Erro de autenticação.");
         setPopupColor("red");
@@ -158,13 +174,11 @@ export default function CadastrarBem() {
 
       const payload: any = {
         tombo,
-        origem,
+        descricao,
         id_categoria,
         id_setor_atual,
         valor_aquisicao: parseValorToNumber(valor),
-        usuario,
-        descricao,
-        situacao,
+        id_usuario_responsavel: userId ? parseInt(userId) : null,
       };
 
       await api.post(
