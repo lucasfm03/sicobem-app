@@ -228,54 +228,10 @@ export default function CadastrarBem() {
       </Modal>
 
       {/* SETOR */}
-      <Text style={styles.label}>Setor atual *</Text>
-      <TouchableOpacity 
-        style={[styles.select, setor && styles.selectActive]}
-        onPress={() => setModalSetorVisible(true)}
-      >
-        <Text style={[styles.selectText, setor && styles.selectTextActive]}>
-          {setor || "Selecione um setor"}
-        </Text>
-        <Ionicons name="chevron-down" size={20} color={setor ? "#0A67B3" : "#999"} />
-      </TouchableOpacity>
-
-      {/* MODAL SETOR */}
-      <Modal
-        transparent
-        visible={modalSetorVisible}
-        onRequestClose={() => setModalSetorVisible(false)}
-      >
-        <View style={styles.overlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Selecione o Setor</Text>
-              <TouchableOpacity onPress={() => setModalSetorVisible(false)}>
-                <Ionicons name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.modalContent}>
-              {setores.map((set) => (
-                <TouchableOpacity
-                  key={set.id_setor}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    setSetor(set.nome);
-                    setSelectedSetorId(set.id_setor);
-                    setModalSetorVisible(false);
-                  }}
-                >
-                  <View style={styles.optionCheck}>
-                    {setor === set.nome && (
-                      <Ionicons name="checkmark" size={18} color="#62CB18" />
-                    )}
-                  </View>
-                  <Text style={styles.optionText}>{set.nome}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <Text style={styles.label}>Setor atual</Text>
+      <View style={[styles.input, { justifyContent: "center" }]}>
+        <Text style={{ color: "#333", fontSize: 13 }}>{setor || "Nenhum setor selecionado"}</Text>
+      </View>
 
       {/* SITUAÇÃO */}
       <Text style={styles.label}>Situação</Text>
