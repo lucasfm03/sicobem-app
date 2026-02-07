@@ -3,14 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
@@ -40,9 +40,8 @@ export default function Home() {
       const token = await AsyncStorage.getItem("token");
 
       if (!token) {
-        setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
         setIsTokenError(true);
-        setShowError(true);
+        router.replace("/login");
         return;
       }
 
@@ -71,9 +70,8 @@ export default function Home() {
       const token = await AsyncStorage.getItem("token");
 
       if (!token || !setorToDelete) {
-        setErrorMessage("Ocorreu um erro ao acessar esta página.\nCódigo: ERR-NOTTOK");
         setIsTokenError(true);
-        setShowError(true);
+        router.replace("/login");
         return;
       }
 

@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function RelatorioSituacao() {
@@ -42,12 +42,9 @@ export default function RelatorioSituacao() {
       style={styles.container}
     >
       <ScrollView scrollEnabled={true}>
-      {/* SETA VOLTAR */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
-        <Ionicons name="arrow-back" size={26} color="#333" />
+      {/* placeholder para manter espaçamento */}
+      <TouchableOpacity onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={26} color="#000" />
       </TouchableOpacity>
 
       {/* LOGO */}

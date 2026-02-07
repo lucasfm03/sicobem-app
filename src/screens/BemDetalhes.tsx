@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Image,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
@@ -401,9 +401,10 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 220,
-    height: 130,
+    width: 380,
+    height: 220,
     resizeMode: "contain",
+    alignSelf: "center",
   },
 
   title: {

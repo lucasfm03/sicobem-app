@@ -45,12 +45,9 @@ export default function RelatorioOrganizacao() {
       style={styles.container}
     >
       <ScrollView scrollEnabled={true}>
-      {/* SETA VOLTAR */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
-        <Ionicons name="arrow-back" size={26} color="#333" />
+      {/* placeholder para manter espaçamento */}
+      <TouchableOpacity onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={26} color="#000" />
       </TouchableOpacity>
 
       {/* LOGO */}

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import {
   Image,
   StyleSheet,
@@ -7,7 +8,6 @@ import {
   View,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -182,8 +182,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 200,
-    height: 120,
+    width: 380,
+    height: 220,
     resizeMode: "contain",
     alignSelf: "center",
     marginBottom: 10,

@@ -1,3 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -8,10 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useState } from "react";
 
 export default function RelatorioSetor() {
 
@@ -48,14 +47,12 @@ export default function RelatorioSetor() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View style={styles.container}>
+      <ScrollView scrollEnabled={true}>
 
       {/* LOGOUT */}
-      <View style={styles.logoutContainer}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#333" />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.logoutContainer} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={26} color="#000" />
+      </TouchableOpacity>
 
       {/* LOGO */}
       <Image
@@ -169,7 +166,7 @@ export default function RelatorioSetor() {
 
       </View>
 
-    </View>
+      </ScrollView>
 
     </KeyboardAvoidingView>
   );

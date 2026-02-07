@@ -1,14 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Input from "../components/Input";
 import Popup from "../components/Popup";
@@ -126,13 +127,16 @@ export default function Register() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView scrollEnabled={true}>
+      <ScrollView 
+        scrollEnabled={true}
+        contentContainerStyle={styles.scrollContent}
+      >
 
         {/* TOPO */}
         <View style={styles.header}>
 
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.back}>←</Text>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={26} color="#000" />
           </TouchableOpacity>
 
           <Image
@@ -146,6 +150,8 @@ export default function Register() {
         <Text style={styles.title}>CADASTRO</Text>
 
         {/* FORMULÁRIO */}
+        <View style={styles.form}>
+
         <Input
           placeholder="Nome completo"
           value={nome}
@@ -195,6 +201,8 @@ export default function Register() {
           </Text>
         </TouchableOpacity>
 
+        </View>
+
       </ScrollView>
 
       {/* RODAPÉ */}
@@ -219,7 +227,7 @@ export default function Register() {
         visible={showSuccess}
         title="Cadastrado feito com sucesso"
         buttonText="Voltar para início"
-        color="pink"
+        color="green"
         onClose={() => {
           setShowSuccess(false);
           router.replace("/login");
@@ -241,20 +249,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAEAEA",
   },
 
-  content: {
-    padding: 24,
+  scrollContent: {
     flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
   },
 
   header: {
     alignItems: "center",
     marginBottom: 20,
+    width: "100%",
+    paddingHorizontal: 20,
   },
 
-  back: {
+  backButton: {
     position: "absolute",
-    left: 0,
-    fontSize: 28,
+    left: 20,
+    top: 0,
+    zIndex: 10,
   },
 
   logo: {
@@ -270,20 +283,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  form: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
   button: {
-    backgroundColor: "#1E90FF",
+    backgroundColor: "#0A67B3",
     height: 45,
-    width: 120,
-    marginHorizontal: "auto",
-    borderRadius: 15,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 15,
+    width: "100%",
   },
 
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 15,
   },
 
   loginLink: {
@@ -292,13 +313,14 @@ const styles = StyleSheet.create({
   },
 
   login: {
-    color: "#1E90FF",
+    color: "#0A67B3",
     fontWeight: "bold",
   },
 
   footer: {
     backgroundColor: "#62CB18",
     padding: 12,
+    alignItems: "center",
   },
 
   footerText: {

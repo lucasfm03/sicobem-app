@@ -1,16 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
 
@@ -160,7 +161,11 @@ export default function Perfil() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.scrollContainer}
+      contentContainerStyle={styles.container}
+      scrollEnabled={true}
+    >
 
       {/* LOGOUT */}
       <View style={styles.logoutContainer}>
@@ -268,7 +273,7 @@ export default function Perfil() {
         onClose={() => setShowSuccess(false)}
       />
 
-    </View>
+    </ScrollView>
   );
 }
 
@@ -278,11 +283,16 @@ export default function Perfil() {
 
 const styles = StyleSheet.create({
 
-  container: {
+  scrollContainer: {
     flex: 1,
+    backgroundColor: "#F2F2F2",
+  },
+
+  container: {
     backgroundColor: "#F2F2F2",
     alignItems: "center",
     paddingTop: 40,
+    paddingBottom: 20,
   },
 
   logoutContainer: {

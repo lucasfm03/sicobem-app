@@ -104,7 +104,7 @@ export default function CadastrarBem() {
     }
   }
 
-  // Função para formatar valor com R$ e separador decimal
+  // Função para formatar valor com separador decimal
   const handleValorChange = (text: string) => {
     // Remove tudo exceto números
     let numeros = text.replace(/\D/g, "");
@@ -114,19 +114,17 @@ export default function CadastrarBem() {
       return;
     }
 
-    // Transforma em centavos
-    if (numeros.length === 1) {
-      setValor("0,0" + numeros);
-    } else if (numeros.length === 2) {
-      setValor("0," + numeros);
+    // Remove zeros a esquerda
+    numeros = numeros.replace(/^0+(?=\d)/, "");
+    
+    // Se tem 1 ou 2 dígitos, coloca como centavos com 0 inteiro
+    if (numeros.length <= 2) {
+      setValor("0," + numeros.padStart(2, "0"));
     } else {
-      // Coloca a vírgula nos últimos 2 dígitos
-      const inteiros = numeros.slice(0, -2);
+      // Se tem 3 ou mais dígitos, separa inteiros e centavos
       const centavos = numeros.slice(-2);
-      
-      // Formata os inteiros com pontos a cada 3 dígitos
+      const inteiros = numeros.slice(0, -2);
       const inteirosFormatados = inteiros.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      
       setValor(inteirosFormatados + "," + centavos);
     }
   };
@@ -206,194 +204,200 @@ export default function CadastrarBem() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView scrollEnabled={true}>
-
-      {/* TOPO */}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>CADASTRO DE BENS</Text>
-        <View style={{ width: 26 }} />
-      </View>
-
-      {/* TOMBO */}
-      <Text style={styles.label}>Tombo *</Text>
-      <TextInput
-        placeholder="Ex: 01-000000"
-        style={styles.input}
-        value={tombo}
-        onChangeText={setTombo}
-        placeholderTextColor="#CCC"
-      />
-
-      {/* ORIGEM */}
-      <Text style={styles.label}>Origem do tombo *</Text>
-      <TextInput
-        placeholder="Ex: SEAD, SEFAZ..."
-        style={styles.input}
-        value={origem}
-        onChangeText={setOrigem}
-        placeholderTextColor="#CCC"
-      />
-
-      {/* CATEGORIA */}
-      <Text style={styles.label}>Categoria *</Text>
-      <TouchableOpacity 
-        style={[styles.select, categoria && styles.selectActive]}
-        onPress={() => setModalCategoriaVisible(true)}
+      <ScrollView 
+        scrollEnabled={true}
+        contentContainerStyle={styles.scrollContent}
       >
-        <Text style={[styles.selectText, categoria && styles.selectTextActive]}>
-          {categoria || "Selecione uma categoria"}
-        </Text>
-        <Ionicons name="chevron-down" size={20} color={categoria ? "#0A67B3" : "#999"} />
-      </TouchableOpacity>
+        {/* TOPO */}
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={26} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.title}>CADASTRO DE BENS</Text>
+          <View style={{ width: 26 }} />
+        </View>
 
-      {/* MODAL CATEGORIA */}
-      <Modal
-        transparent
-        visible={modalCategoriaVisible}
-        onRequestClose={() => setModalCategoriaVisible(false)}
-      >
-        <View style={styles.overlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Selecione a Categoria</Text>
-              <TouchableOpacity onPress={() => setModalCategoriaVisible(false)}>
-                <Ionicons name="close" size={24} color="#333" />
-              </TouchableOpacity>
+        {/* CARD COM CAMPOS */}
+        <View style={styles.card}>
+          {/* TOMBO */}
+          <Text style={styles.label}>Tombo *</Text>
+          <TextInput
+            placeholder="Ex: 01-000000"
+            style={styles.input}
+            value={tombo}
+            onChangeText={setTombo}
+            placeholderTextColor="#CCC"
+          />
+
+          {/* ORIGEM */}
+          <Text style={styles.label}>Origem do tombo *</Text>
+          <TextInput
+            placeholder="Ex: SEAD, SEFAZ..."
+            style={styles.input}
+            value={origem}
+            onChangeText={setOrigem}
+            placeholderTextColor="#CCC"
+          />
+
+          {/* CATEGORIA */}
+          <Text style={styles.label}>Categoria *</Text>
+          <TouchableOpacity 
+            style={[styles.select, categoria && styles.selectActive]}
+            onPress={() => setModalCategoriaVisible(true)}
+          >
+            <Text style={[styles.selectText, categoria && styles.selectTextActive]}>
+              {categoria || "Selecione uma categoria"}
+            </Text>
+            <Ionicons name="chevron-down" size={20} color={categoria ? "#0A67B3" : "#999"} />
+          </TouchableOpacity>
+
+          {/* MODAL CATEGORIA */}
+          <Modal
+            transparent
+            visible={modalCategoriaVisible}
+            onRequestClose={() => setModalCategoriaVisible(false)}
+          >
+            <View style={styles.overlay}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Selecione a Categoria</Text>
+                  <TouchableOpacity onPress={() => setModalCategoriaVisible(false)}>
+                    <Ionicons name="close" size={24} color="#333" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.modalContent}>
+                  {categorias.map((cat) => (
+                    <TouchableOpacity
+                      key={cat.id_categoria}
+                      style={styles.modalOption}
+                      onPress={() => {
+                        setCategoria(cat.nome);
+                        setModalCategoriaVisible(false);
+                      }}
+                    >
+                      <View style={styles.optionCheck}>
+                        {categoria === cat.nome && (
+                          <Ionicons name="checkmark" size={18} color="#62CB18" />
+                        )}
+                      </View>
+                      <Text style={styles.optionText}>{cat.nome}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
             </View>
-            <ScrollView style={styles.modalContent}>
-              {categorias.map((cat) => (
-                <TouchableOpacity
-                  key={cat.id_categoria}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    setCategoria(cat.nome);
-                    setModalCategoriaVisible(false);
-                  }}
-                >
-                  <View style={styles.optionCheck}>
-                    {categoria === cat.nome && (
-                      <Ionicons name="checkmark" size={18} color="#62CB18" />
-                    )}
-                  </View>
-                  <Text style={styles.optionText}>{cat.nome}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+          </Modal>
+
+          {/* SETOR */}
+          <Text style={styles.label}>Setor atual</Text>
+          <View style={[styles.input, { justifyContent: "center" }]}>
+            <Text style={{ color: "#333", fontSize: 13 }}>{setor || "Nenhum setor selecionado"}</Text>
+          </View>
+
+          {/* SITUAÇÃO */}
+          <Text style={styles.label}>Situação</Text>
+          <View style={styles.radioGroup}>
+            <TouchableOpacity 
+              style={[styles.radioItem, situacao === "Ativo" && styles.radioItemActive]}
+              onPress={() => setSituacao(situacao === "Ativo" ? "" : "Ativo")}
+            >
+              <Ionicons 
+                name={situacao === "Ativo" ? "radio-button-on" : "radio-button-off"} 
+                size={20}
+                color={situacao === "Ativo" ? "#0A67B3" : "#CCC"}
+              />
+              <Text style={[styles.radioText, situacao === "Ativo" && styles.radioTextActive]}> Ativo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.radioItem, situacao === "Não encontrado" && styles.radioItemActive]}
+              onPress={() => setSituacao(situacao === "Não encontrado" ? "" : "Não encontrado")}
+            >
+              <Ionicons 
+                name={situacao === "Não encontrado" ? "radio-button-on" : "radio-button-off"} 
+                size={20}
+                color={situacao === "Não encontrado" ? "#0A67B3" : "#CCC"}
+              />
+              <Text style={[styles.radioText, situacao === "Não encontrado" && styles.radioTextActive]}> Não encontrado</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.radioItem, situacao === "Inservível" && styles.radioItemActive]}
+              onPress={() => setSituacao(situacao === "Inservível" ? "" : "Inservível")}
+            >
+              <Ionicons 
+                name={situacao === "Inservível" ? "radio-button-on" : "radio-button-off"} 
+                size={20}
+                color={situacao === "Inservível" ? "#0A67B3" : "#CCC"}
+              />
+              <Text style={[styles.radioText, situacao === "Inservível" && styles.radioTextActive]}> Inservível</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* VALOR */}
+          <Text style={styles.label}>Valor *</Text>
+          <View style={styles.inputWithPrefix}>
+            <Text style={styles.prefix}>R$</Text>
+            <TextInput
+              placeholder="0,00"
+              style={styles.inputWithPrefixField}
+              value={valor}
+              onChangeText={handleValorChange}
+              keyboardType="numeric"
+              placeholderTextColor="#CCC"
+            />
+          </View>
+
+          {/* USUÁRIO */}
+          <Text style={styles.label}>Usuário atual</Text>
+          <TextInput
+            placeholder="Nome do usuário"
+            style={styles.input}
+            value={usuario}
+            onChangeText={setUsuario}
+            placeholderTextColor="#CCC"
+          />
+
+          {/* DESCRIÇÃO */}
+          <Text style={styles.label}>Descrição</Text>
+          <TextInput
+            placeholder="Observações sobre o bem..."
+            style={[styles.input, { height: 90, textAlignVertical: "top" }]}
+            multiline
+            value={descricao}
+            onChangeText={setDescricao}
+            placeholderTextColor="#CCC"
+          />
+
+          {/* BOTÃO */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, (!tombo || !origem || !categoria || !setor || !valor) && styles.buttonDisabled]}
+              onPress={handleCadastrar}
+              disabled={!tombo || !origem || !categoria || !setor || !valor}
+            >
+              <Text style={styles.buttonText}>CADASTRAR</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
 
-      {/* SETOR */}
-      <Text style={styles.label}>Setor atual</Text>
-      <View style={[styles.input, { justifyContent: "center" }]}>
-        <Text style={{ color: "#333", fontSize: 13 }}>{setor || "Nenhum setor selecionado"}</Text>
-      </View>
-
-      {/* SITUAÇÃO */}
-      <Text style={styles.label}>Situação</Text>
-      <View style={styles.radioGroup}>
-        <TouchableOpacity 
-          style={[styles.radioItem, situacao === "Ativo" && styles.radioItemActive]}
-          onPress={() => setSituacao(situacao === "Ativo" ? "" : "Ativo")}
-        >
-          <Ionicons 
-            name={situacao === "Ativo" ? "radio-button-on" : "radio-button-off"} 
-            size={20}
-            color={situacao === "Ativo" ? "#0A67B3" : "#CCC"}
-          />
-          <Text style={[styles.radioText, situacao === "Ativo" && styles.radioTextActive]}> Ativo</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.radioItem, situacao === "Não encontrado" && styles.radioItemActive]}
-          onPress={() => setSituacao(situacao === "Não encontrado" ? "" : "Não encontrado")}
-        >
-          <Ionicons 
-            name={situacao === "Não encontrado" ? "radio-button-on" : "radio-button-off"} 
-            size={20}
-            color={situacao === "Não encontrado" ? "#0A67B3" : "#CCC"}
-          />
-          <Text style={[styles.radioText, situacao === "Não encontrado" && styles.radioTextActive]}> Não encontrado</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.radioItem, situacao === "Inservível" && styles.radioItemActive]}
-          onPress={() => setSituacao(situacao === "Inservível" ? "" : "Inservível")}
-        >
-          <Ionicons 
-            name={situacao === "Inservível" ? "radio-button-on" : "radio-button-off"} 
-            size={20}
-            color={situacao === "Inservível" ? "#0A67B3" : "#CCC"}
-          />
-          <Text style={[styles.radioText, situacao === "Inservível" && styles.radioTextActive]}> Inservível</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* VALOR */}
-      <Text style={styles.label}>Valor *</Text>
-      <View style={styles.inputWithPrefix}>
-        <Text style={styles.prefix}>R$</Text>
-        <TextInput
-          placeholder="0,00"
-          style={styles.inputWithPrefixField}
-          value={valor}
-          onChangeText={handleValorChange}
-          keyboardType="numeric"
-          placeholderTextColor="#CCC"
-        />
-      </View>
-
-      {/* USUÁRIO */}
-      <Text style={styles.label}>Usuário atual</Text>
-      <TextInput
-        placeholder="Nome do usuário"
-        style={styles.input}
-        value={usuario}
-        onChangeText={setUsuario}
-        placeholderTextColor="#CCC"
-      />
-
-      {/* DESCRIÇÃO */}
-      <Text style={styles.label}>Descrição</Text>
-      <TextInput
-        placeholder="Observações sobre o bem..."
-        style={[styles.input, { height: 90, textAlignVertical: "top" }]}
-        multiline
-        value={descricao}
-        onChangeText={setDescricao}
-        placeholderTextColor="#CCC"
-      />
-
-      {/* BOTÃO */}
-      <TouchableOpacity
-        style={[styles.button, (!tombo || !origem || !categoria || !setor || !valor) && styles.buttonDisabled]}
-        onPress={handleCadastrar}
-        disabled={!tombo || !origem || !categoria || !setor || !valor}
-      >
-        <Text style={styles.buttonText}>CADASTRAR</Text>
-      </TouchableOpacity>
-
-      <Popup
-        visible={showPopup}
-        title={popupMessage}
-        buttonText={popupColor === "green" ? "CONTINUAR" : "VOLTAR"}
-        color={popupColor}
-        onClose={() => {
-          setShowPopup(false);
-          if (popupColor === "green") {
-            // preferir id do setor quando disponível
-            if (selectedSetorId) {
-              router.push({ pathname: "/bens", params: { idSetor: String(selectedSetorId) } });
-            } else {
-              router.push({ pathname: "/bens", params: { setor } });
+        <Popup
+          visible={showPopup}
+          title={popupMessage}
+          buttonText={popupColor === "green" ? "CONTINUAR" : "VOLTAR"}
+          color={popupColor}
+          onClose={() => {
+            setShowPopup(false);
+            if (popupColor === "green") {
+              // preferir id do setor quando disponível
+              if (selectedSetorId) {
+                router.push({ pathname: "/bens", params: { idSetor: String(selectedSetorId) } });
+              } else {
+                router.push({ pathname: "/bens", params: { setor } });
+              }
             }
-          }
-        }}
-      />
-
+          }}
+        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -403,7 +407,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#EFEFEF",
-    padding: 20,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingVertical: 20,
+    paddingHorizontal: 16,
   },
 
   topBar: {
@@ -411,12 +422,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
+    marginTop: 16,
+    width: "100%",
   },
 
   title: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
+  },
+
+  card: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
 
   label: {
@@ -581,13 +609,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  buttonContainer: {
+    alignItems: "center",
+    marginTop: 24,
+    marginBottom: 8,
+  },
+
   button: {
     backgroundColor: "#0A67B3",
     height: 50,
+    width: "70%",
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

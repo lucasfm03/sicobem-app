@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
@@ -158,7 +158,7 @@ export default function CadastroSetorScreen() {
         <View style={styles.footer}>
           <Text style={styles.footerText}>© 2026 App Sicobem</Text>
           <Text style={styles.footerText}>
-            Desenvolvido pelos capangas do Alan
+            Desenvolvido por equipe WLL
           </Text>
         </View>
 
@@ -217,6 +217,7 @@ const styles = StyleSheet.create({
   /* LOGO MAIOR */
   logo: {
     width: 380,
+    alignSelf: "center",
     height: 220,
     resizeMode: "contain",
   },

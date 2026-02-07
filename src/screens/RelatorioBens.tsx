@@ -1,17 +1,16 @@
-import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function RelatorioBens() {
 
@@ -53,25 +52,19 @@ export default function RelatorioBens() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View style={styles.container}>
+      <ScrollView scrollEnabled={true}>
+      <TouchableOpacity onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={26} color="#000" />
+      </TouchableOpacity>
 
-    {/* LOGO */}
-    <Image
+      {/* LOGO */}
+      <Image
         source={require("../../assets/images/logo.png")}
         style={styles.logo}
-    />
-        
+      />
 
-      {/* TOPO */}
-      <View style={styles.header}>
-
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#333" />
-        </TouchableOpacity>
-
-        <Text style={styles.title}>BENS</Text>
-
-      </View>
+      {/* TÍTULO */}
+      <Text style={styles.title}>BENS</Text>
 
       {/* FORMATO PDF / EXCEL */}
       <View style={styles.card}>
@@ -215,7 +208,7 @@ export default function RelatorioBens() {
 
       </View>
 
-    </View>
+      </ScrollView>
 
     </KeyboardAvoidingView>
   );
@@ -241,16 +234,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-
   title: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
-    marginLeft: 10,
+    textAlign: "center",
+    marginBottom: 15,
   },
 
   card: {

@@ -87,8 +87,6 @@ export default function Bens() {
 
       {/* TOPO */}
       <View style={styles.topBar}>
-
-        {/* SETA VOLTAR */}
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={26} color="#333" />
         </TouchableOpacity>
@@ -99,7 +97,6 @@ export default function Bens() {
           style={styles.logo}
         />
 
-        {/* Espaço fantasma */}
         <View style={{ width: 26 }} />
 
       </View>

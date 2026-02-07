@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Popup from "../components/Popup";
 import { api } from "../services/api";
@@ -130,7 +130,7 @@ export default function CadastrarCategoriaBem() {
             © 2026 App Sicobem. Todos os direitos reservados
           </Text>
           <Text style={styles.footerText}>
-            Desenvolvido pelos capangas do Alan
+            Desenvolvido por equipe WLL
           </Text>
         </View>
 
@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
     width: 380,
     height: 220,
     resizeMode: "contain",
+    alignSelf: "center",
   },
 
   title: {

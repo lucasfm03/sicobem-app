@@ -1,13 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Input from "../components/Input";
 
@@ -17,12 +18,15 @@ export default function ForgotPassword() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView scrollEnabled={true}>
+      <ScrollView 
+        scrollEnabled={true}
+        contentContainerStyle={styles.scrollContent}
+      >
 
         {/* TOPO */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.back}>←</Text>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={26} color="#000" />
           </TouchableOpacity>
 
           <Image
@@ -33,6 +37,9 @@ export default function ForgotPassword() {
 
         {/* TÍTULO */}
         <Text style={styles.title}>RECUPERAÇÃO DE SENHA</Text>
+
+        {/* FORMULÁRIO */}
+        <View style={styles.form}>
 
         {/* CPF */}
         <Text style={styles.label}>Digite seu CPF:</Text>
@@ -50,6 +57,8 @@ export default function ForgotPassword() {
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>ALTERAR SENHA</Text>
         </TouchableOpacity>
+
+        </View>
 
       </ScrollView>
 
@@ -71,20 +80,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAEAEA",
   },
 
-  content: {
-    padding: 24,
-    paddingBottom: 40,
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
   },
 
   header: {
     alignItems: "center",
     marginBottom: 20,
+    width: "100%",
+    paddingHorizontal: 20,
   },
 
-  back: {
+  backButton: {
     position: "absolute",
-    left: 0,
-    fontSize: 28,
+    left: 20,
+    top: 0,
+    zIndex: 10,
   },
 
   logo: {
@@ -97,26 +111,38 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 20,
+  },
+
+  form: {
+    width: "85%",
+    backgroundColor: "#FFF",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
   },
 
   label: {
-    marginBottom: 4,
+    marginBottom: 8,
     fontSize: 14,
+    fontWeight: "500",
+    alignSelf: "flex-start",
   },
 
   button: {
-    backgroundColor: "#1E90FF",
+    backgroundColor: "#0A67B3",
     height: 45,
-    borderRadius: 20,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 20,
+    width: "70%",
   },
 
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 15,
   },
 
   footer: {

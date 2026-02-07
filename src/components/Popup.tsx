@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   visible: boolean;
@@ -26,7 +26,7 @@ export default function Popup({
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <View style={styles.overlay}>
-        <View style={styles.box}>
+        <View style={[styles.box, color === "red" && styles.errorBox, color === "green" && styles.successBox]}>
 
           <Text style={[styles.icon, { color }]}>
             {color === "red" ? "✖" : "✔"}
@@ -54,7 +54,7 @@ export default function Popup({
 
             {/* BOTÃO PRINCIPAL */}
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: color }]}
+              style={[styles.button, { backgroundColor: color === "green" ? "#0A67B3" : color }]}
               onPress={onClose}
             >
               <Text style={styles.buttonText}>{buttonText}</Text>
@@ -83,9 +83,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  errorBox: {
+    borderWidth: 3,
+    borderColor: "#E53935",
+  },
+
+  successBox: {
+    borderWidth: 3,
+    borderColor: "#43A047",
+  },
+
   icon: {
-    fontSize: 48,
-    marginBottom: 10,
+    fontSize: 64,
+    marginBottom: 16,
+    fontWeight: "bold",
   },
 
   title: {
@@ -111,14 +122,17 @@ const styles = StyleSheet.create({
 
   button: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingVertical: 14,
+    borderRadius: 25,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 48,
   },
 
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 15,
   },
 
   secondaryButton: {
